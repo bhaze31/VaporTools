@@ -73,4 +73,47 @@ protocol Form: Encodable {
 }
 """
   }
+  var resource: String {
+    return """
+
+import Vapor
+import Fluent
+
+protocol Resource {
+    associatedtype APIController: APIControllerProtocol
+    associatedtype WebController: WebControllerProtocol
+
+    var apiController: APIController? { get }
+    var webController: WebController? { get }
+
+    var migrations: [Migration] { get }
+
+    func configure(_ app: Application) throws
+}
+
+extension Resource {
+    var apiController: APIController? { nil }
+    var webController: WebController? { nil }
+
+    var migrations: [Migration] { [] }
+
+    func configure(_ app: Application) throws {
+        migrations.forEach { app.migrations.add($0) }
+
+        if let api = apiController {
+            try api.boot(routes: app.routes.grouped("api"))
+        }
+
+        if let web = webController {
+            let protectedRoutes = app.routes.grouped([
+                User.sessionAuthenticator(),
+                User.redirectMiddleware(path: "/login")
+            ])
+
+            try web.boot(routes: protectedRoutes)
+        }
+    }
+}
+"""
+  }
 }

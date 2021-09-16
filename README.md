@@ -17,7 +17,7 @@ file, pass --skip-web or --skip-api to ignore these files.
 
 ## Migrations
 The migrations folder holds all the migrations for models. They are generated using
-M_Timestamp_MigrationName format, to ensure that all migrations are run in order.
+MTimestamp_MigrationName format, to ensure that all migrations are run in order.
 If the migration is generated for a model, that models resource folder is updated
 to include the migration. If the migration is not for a model, the migration
 is appended to the main routes file. To pass a model to an individual migration

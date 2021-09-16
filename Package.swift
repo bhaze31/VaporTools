@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "VaporTools",
     products: [
-      .executable(name: "VaporTools", targets: ["VaporTools"])
+      .executable(name: "vapor-tools", targets: ["VaporTools"])
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.

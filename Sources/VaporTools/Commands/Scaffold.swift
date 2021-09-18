@@ -11,13 +11,13 @@ struct Scaffold: ParsableCommand {
 
 
         var fieldKeys = """
-    static var id: FieldKey { \"id\" }
-    """
+        static var id: FieldKey { \"id\" }
+        """
 
         // TODO: Implement check for Int id flag
         var modelFields = """
-    @ID(key: FieldKeys.id) var id: UUID?
-    """
+        @ID(key: FieldKeys.id) var id: UUID?
+        """
 
         var initializer = "init("
         var initializeFields = ""
@@ -63,15 +63,15 @@ struct Scaffold: ParsableCommand {
 
             fieldKeys += """
 
-          static var \(field): FieldKey { \"\(field.lowercased())\" }
-      """
+                    static var \(field): FieldKey { \"\(field.lowercased())\" }
+            """
 
             let definition = "\(isArray ? "[" : "")\(fieldType.capitalized)\(isArray ? "]" : "")\(optional ? "?" : "")"
 
             modelFields += """
 
-        @Field(key: FieldKeys.\(field)) var \(field): \(definition)
-      """
+                @Field(key: FieldKeys.\(field)) var \(field): \(definition)
+            """
 
             if isFirstField {
                 initializer += "\(field): \(definition)"
@@ -82,47 +82,47 @@ struct Scaffold: ParsableCommand {
 
             initializeFields += """
 
-          self.\(field) = \(field)
-      """
+                    self.\(field) = \(field)
+            """
         }
 
         initializer += """
-    ) {\(initializeFields)
-      }
-    """
+        ) {\(initializeFields)
+            }
+        """
 
         if !skipTimestamps {
             fieldKeys += """
 
-          static var createdAt: FieldKey { \"created_at\" }
-          static var updatedAt: FieldKey { \"updated_at\" }
-      """
+                    static var createdAt: FieldKey { \"created_at\" }
+                    static var updatedAt: FieldKey { \"updated_at\" }
+            """
 
             modelFields += """
 
-        @Timestamp(key: FieldKeys.createdAt, on: .create) var createdAt: Date?
-        @Timestamp(key: FieldKeys.updatedAt, on: .update) var updatedAt: Date?
-      """
+                @Timestamp(key: FieldKeys.createdAt, on: .create) var createdAt: Date?
+                @Timestamp(key: FieldKeys.updatedAt, on: .update) var updatedAt: Date?
+            """
         }
 
         let model = """
-    import Vapor
-    import Fluent
+        import Vapor
+        import Fluent
 
-    final class \(name.capitalized): Model {
-      static let schema = \"\(name.lowercased())\"
+        final class \(name.capitalized): Model {
+            static let schema = \"\(name.lowercased())\"
 
-      struct FieldKeys {
-        \(fieldKeys)
-      }
+            struct FieldKeys {
+                \(fieldKeys)
+            }
 
-      \(modelFields)
+            \(modelFields)
 
-      init() {}
+            init() {}
 
-      \(initializer)
-    }
-    """
+            \(initializer)
+        }
+        """
 
         return model
     }
@@ -164,12 +164,11 @@ struct Scaffold: ParsableCommand {
     private var skipTimestamps = false
 
     func run() throws {
-      let formatter = DateFormatter()
-      formatter.dateFormat = "YYYYMMddHHmmssSSS"
-      let timestamp = formatter.string(from: Date())
+      let timestamp = getTimestamp()
       let model = modelGenerator(name: name, fields: fields)
 
       let resource = resourceGenerator(name: name.capitalized, timestamp: timestamp)
+
       let migration = MigrationGenerator.initialMigrationGenerator(name: name.capitalized, fields: fields, skipTimestamps: skipTimestamps, timestamp: timestamp)
 
       FileGenerator.createFileWithContents(model, fileName: "\(name.capitalized).swift", path: .ModelPath)

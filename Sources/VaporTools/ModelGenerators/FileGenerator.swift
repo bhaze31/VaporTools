@@ -145,7 +145,7 @@ final class FileGenerator {
             for row in rows {
                 var rowValid = true
                 for field in fields {
-                    if row.contains("\(field): FieldKey") || row.contains("FieldKeys.email") {
+                    if row.contains("FieldKeys.\(field)") {
                         rowValid = false
                     }
                 }

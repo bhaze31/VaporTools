@@ -77,11 +77,11 @@ final class MigrationGenerator {
         return migration
     }
     
-    private static func migrationHeader(name: String, model: String, timestamp: String) -> String {
+    private static func migrationHeader(name: String, model: String, timestamp: String, autoMigrate: Bool = false) -> String {
         """
         import Fluent
         
-        final class M\(timestamp)_\(name): Migration {
+        final class M\(timestamp)_\(name): \(autoMigrate ? "AutoMigration" : "Migration") {
             func prepare(on database: Database) -> EventLoopFuture<Void> {
                 database.schema(\(model.capitalized).schema)
 
@@ -102,7 +102,7 @@ final class MigrationGenerator {
         """
     }
 
-    static func initialMigrationGenerator(name: String, fields: [String], skipTimestamps: Bool, timestamp: String) -> String {
+    static func initialMigrationGenerator(name: String, fields: [String], skipTimestamps: Bool, timestamp: String, autoMigrate: Bool = false) -> String {
         var migration = migrationHeader(name: name, model: name, timestamp: timestamp)
 
         migration += "\t\t\t.id()\n"
@@ -128,7 +128,7 @@ final class MigrationGenerator {
         return migration
     }
     
-    static func generateFieldMigration(name: String, model _model: String?, fields: [String], timestamp: String, type: MigrationType) -> String {
+    static func generateFieldMigration(name: String, model _model: String?, fields: [String], timestamp: String, type: MigrationType, autoMigrate: Bool = false) -> String {
         guard let model = _model else {
             return emptyMigration(name: name, timestamp: timestamp)
         }

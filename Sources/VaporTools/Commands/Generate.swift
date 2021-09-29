@@ -13,8 +13,9 @@ struct Generate: ParsableCommand {
     static let configuration = CommandConfiguration(
         abstract: "Tool used to generate Controllers/Models/Forms/Resources/Migrations",
         subcommands: [
-            Scaffold.self,
-            Migration.self
+            Migration.self,
+            WebRepresentable.self,
+            APIRepresentable.self
         ]
     )
 }

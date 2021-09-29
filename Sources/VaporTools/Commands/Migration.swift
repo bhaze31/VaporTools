@@ -21,6 +21,9 @@ struct Migration: ParsableCommand {
     @Flag(help: "Generate an empty migration")
     private var empty = false
     
+    @Flag(help: "Use AutoMigrate class for migrations")
+    private var autoMigrate = false
+
     func run() throws {
         let timestamp = getTimestamp()
         
@@ -61,7 +64,8 @@ struct Migration: ParsableCommand {
             model: modelName,
             fields: fields,
             timestamp: timestamp,
-            type: migrationType
+            type: migrationType,
+            autoMigrate: autoMigrate
         )
 
         FileGenerator.createFileWithContents(

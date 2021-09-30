@@ -5,6 +5,11 @@ applications. It uses multiple commands to be able to generate models, controlle
 views, protocols, and resources for Vapor backed servers. It follows a strict folder
 structure as follows:
 
+## Why Rapid Boil?
+How else do you make Vapor? And we want to get our work done quickly. For those that cook,
+you know the rapid boil burner helps get everything going quicker, and that is the aim
+of this CLI. Vapor applications, with boiler plate code generated quickly.
+
 ## Models
 The models folder is where the base file for each model lives. This includes
 the type definitions for the model, the schema name, and initialization code. The

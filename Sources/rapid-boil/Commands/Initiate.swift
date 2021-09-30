@@ -3,7 +3,7 @@ import Foundation
 
 struct Initiate: ParsableCommand {
   static let configuration = CommandConfiguration(
-    abstract: "Initiate Vapor app to vapor-tools configuration"
+    abstract: "Initiate Vapor app to rapid-boil configuration"
   )
 
   @Option(help: "Name of application to generate")

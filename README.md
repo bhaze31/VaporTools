@@ -1,6 +1,6 @@
-# VaporTools
+# Rapid Boil
 
-VaporTools is a command line utility to generate scaffolding code for Vapor
+Rapid boil is a command line utility to generate scaffolding code for Vapor
 applications. It uses multiple commands to be able to generate models, controllers,
 views, protocols, and resources for Vapor backed servers. It follows a strict folder
 structure as follows:
@@ -30,4 +30,4 @@ or -r Route. Web controllers use the model name and basic REST standards for the
 routing.
 
 Each controller conforms to their respective protocol that is generated when the
-app is bootstrapped by the VaporTools initiate command.
+app is bootstrapped by the rapid-boil initiate command.

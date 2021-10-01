@@ -1,7 +1,7 @@
 import XCTest
 @testable import rapid_boil
 
-final class fieldTests: XCTestCase {
+final class FieldTests: XCTestCase {
     func testDictionaryField() throws {
         var dict = Field(
             name: "test",

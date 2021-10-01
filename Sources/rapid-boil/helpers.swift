@@ -45,6 +45,69 @@ struct Field {
             
         }
     }
+    
+    func getFieldKey(spaces: String = "        ") -> String {
+        return """
+        \(spaces)static var \(name): FieldKey { \"\(name.lowercased())\" }
+        """
+    }
+    
+    func getField(spaces: String = "    ") -> String {
+        return """
+        \(spaces)@Field(key: FieldKeys.\(name)) var \(name): \(self.getSwiftType())
+        """
+    }
+}
+
+func generateModelInitializer(fields: [Field]) -> String {
+    var initializer = "init("
+    
+    initializer += fields.map { "\($0.name): \($0.getSwiftType())"}.joined(separator: ", ")
+    
+    initializer += ") {\n"
+    
+    initializer += fields.map { "        self.\($0.name) = \($0.name)" }.joined(separator: "\n")
+
+    initializer += "\n    }"
+
+    return initializer
+}
+
+func generateFieldKeys(fields: [Field], hasTimestamps: Bool = true) -> String {
+    var fieldKeys = """
+    static var id: FieldKey { \"id\" }
+
+    """
+        
+    fieldKeys += fields.map { $0.getFieldKey() }.joined(separator: "\n")
+    
+    if hasTimestamps {
+        fieldKeys += """
+        
+                static var createdAt: FieldKey { \"created_at\" }
+                static var updatedAt: FieldKey { \"updated_at\" }
+        """
+    }
+    return fieldKeys
+}
+
+func generateFields(fields: [Field], hasTimestamps: Bool = true) -> String {
+    var modelFields = """
+    @ID(key: FieldKeys.id) var id: UUID?
+
+    """
+    
+    modelFields += fields.map { $0.getField() }.joined(separator: "\n")
+    
+    if hasTimestamps {
+        modelFields += """
+        
+            @Timestamp(key: FieldKeys.createdAt, on: .create) var createdAt: Date?
+            @Timestamp(key: FieldKeys.updatedAt, on: .update) var updatedAt: Date?
+        """
+    }
+
+    return modelFields
 }
 
 let validTypes = ["string", "int", "double", "bool", "dict", "date", "any"]

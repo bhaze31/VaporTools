@@ -11,6 +11,8 @@ enum PathConstants: String {
 
     case MigrationPath = "Source/App/Migrations"
 
+    case FormPath = "Source/App/Forms"
+
     case ProtocolPath = "Source/App/Protocols"
     case APIProtocolPath = "Source/App/Protocols/APIProtocols"
     case WebProtocolPath = "Source/App/Protocols/WebProtocols"
@@ -25,6 +27,8 @@ enum PathConstants: String {
     case ResourcePath = "Sources/App/Resources"
     
     case MigrationPath = "Sources/App/Migrations"
+    
+    case FormPath = "Sources/App/Forms"
     
     case ProtocolPath = "Sources/App/Protocols"
     case APIProtocolPath = "Sources/App/Protocols/APIProtocols"
@@ -55,6 +59,7 @@ final class AppFiles {
     """
   }
 }
+
 final class FileGenerator {
     static func fileExists(fileName: String, path: PathConstants) -> Bool {
         return FileManager.default.fileExists(atPath: "\(path.rawValue)/\(fileName)")

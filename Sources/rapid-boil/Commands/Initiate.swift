@@ -39,13 +39,6 @@ struct Initiate: ParsableCommand {
         )
     
         FileGenerator.createFileWithContents(
-            sharedGenerator.formProtocol,
-            fileName: "FormProtocol.swift",
-            path: PathConstants.ProtocolPath,
-            displayIfConflicting: showContents
-        )
-    
-        FileGenerator.createFileWithContents(
             sharedGenerator.resource,
             fileName: "Resource.swift",
             path: PathConstants.ProtocolPath,
@@ -84,6 +77,27 @@ struct Initiate: ParsableCommand {
             FormProtocols.mainProtocol(),
             fileName: "FormProtocol.swift",
             path: .ProtocolPath,
+            displayIfConflicting: showContents
+        )
+        
+        FileGenerator.createFileWithContents(
+            FormProtocols.basicForm(),
+            fileName: "BasicFormField.swift",
+            path: .FormPath,
+            displayIfConflicting: showContents
+        )
+        
+        FileGenerator.createFileWithContents(
+            FormProtocols.arrayForm(),
+            fileName: "ArrayFormField.swift",
+            path: .FormPath,
+            displayIfConflicting: showContents
+        )
+        
+        FileGenerator.createFileWithContents(
+            FormProtocols.checkBoxForm(),
+            fileName: "CheckBoxFormField.swift",
+            path: .FormPath,
             displayIfConflicting: showContents
         )
     

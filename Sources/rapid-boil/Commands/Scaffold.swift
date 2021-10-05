@@ -83,7 +83,7 @@ struct Scaffold: ParsableCommand {
         let timestamp = getTimestamp()
 
         let model = ModelGenerator.generateModel(name: name, fields: fields, hasTimestamps: !skipTimestamps)
-        
+
         let resource = resourceGenerator(name: name.capitalized, timestamp: timestamp)
         
         let migration = MigrationGenerator.initialMigrationGenerator(
@@ -92,6 +92,11 @@ struct Scaffold: ParsableCommand {
             skipTimestamps: skipTimestamps,
             timestamp: timestamp,
             autoMigrate: autoMigrate
+        )
+        
+        let form = FormGenerator.generateForm(
+            model: name,
+            fields: fields
         )
         
         // Creating Model
@@ -130,6 +135,14 @@ struct Scaffold: ParsableCommand {
                     path: .ModelPath
                 )
             }
+        }
+        
+        if !apiOnly && !noRepresentable {
+            FileGenerator.createFileWithContents(
+                form,
+                fileName: "\(name)Form.swift",
+                path: .FormPath
+            )
         }
         
         FileGenerator.createFileWithContents(

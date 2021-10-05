@@ -57,6 +57,12 @@ struct Field {
         \(spaces)@Field(key: FieldKeys.\(name)) var \(name): \(self.getSwiftType())
         """
     }
+    
+    func getFormInput(spaces: String = "    ") -> String {
+        return """
+        \(spaces)var \(name): \(getSwiftType())
+        """
+    }
 }
 
 func generateModelInitializer(fields: [Field]) -> String {

@@ -6,12 +6,14 @@ enum MigrationType: String {
     case Unknown
 }
 
+#warning("TODO (04/10/2021) Add reference types")
+
 final class MigrationGenerator {
-    private static func generateAddField(model: String, field: String, type: String, isArray: Bool, isOptional: Bool) -> String {
+    private static func generateAddField(model: String, field: String, type: String, isArray: Bool, isOptional: Bool, modifyFieldCase: Bool = true) -> String {
         let type = isArray ? ".array(of: .\(type))" : ".\(type)"
         let required = isOptional ? "" : ", .required"
-        
-        return  ".field(\(model.capitalized).FieldKeys.\(field.lowercased()), \(type)\(required))"
+        let fieldKey = modifyFieldCase ? field.lowercased() : field
+        return  ".field(\(model).FieldKeys.\(fieldKey), \(type)\(required))"
     }
     
     private static func generateDeleteField(model: String, field: String) -> String {
@@ -23,8 +25,8 @@ final class MigrationGenerator {
         for field in fields {
             let split = field.components(separatedBy: ":")
             
-            // TODO: Handle case where no inverse should happen. This should allow us to send in only 1 param
-            // if it is dropping a field and not re-adding it on the inverse
+            #warning("TODO (04/10/2021) Handle case where no inverse should happen. This should allow us to send in only 1 param if it is dropping a field and not re-adding it on the inverse")
+
             if (split.count != 2 && split.count != 3) {
                 fatalError("Invalid argument for field: \(field)")
             }
@@ -32,7 +34,10 @@ final class MigrationGenerator {
             let fieldName = split[0]
 
             if migrationType == .Delete {
-                migration += "\t\t\t\(generateDeleteField(model: name, field: fieldName))\n"
+                migration += """
+                            \(generateDeleteField(model: name, field: fieldName))
+
+                """
                 continue    
             }
                         
@@ -48,7 +53,6 @@ final class MigrationGenerator {
             if fieldType.contains(".") {
                 let splitFieldType = fieldType.split(separator: ".")
                 
-                // TODO: Handle dictionary types with two .
                 if splitFieldType.count != 2 {
                     fatalError("Field type can only contain one . for definition.")
                 }
@@ -64,25 +68,31 @@ final class MigrationGenerator {
                 fatalError("Invalid type for field: \(fieldName), valid types are: \(validFieldTypes)")
             }
             
-            migration += "\t\t\t\(generateAddField(model: name, field: fieldName, type: fieldType, isArray: isArray, isOptional: optional || isInverse))\n"
+            migration += """
+                        \(generateAddField(model: name, field: fieldName, type: fieldType, isArray: isArray, isOptional: optional || isInverse))
+
+            """
 
         }
         
         if !skipTimestamps {
-            migration += "\t\t\t\(generateAddField(model: name, field: "createdAt", type: "datetime", isArray: false, isOptional: true))\n"
-            
-            migration += "\t\t\t\(generateAddField(model: name, field: "updatedAt", type: "datetime", isArray: false, isOptional: true))\n"
+            migration += """
+                        \(generateAddField(model: name, field: "createdAt", type: "datetime", isArray: false, isOptional: true, modifyFieldCase: false))
+                        \(generateAddField(model: name, field: "updatedAt", type: "datetime", isArray: false, isOptional: true, modifyFieldCase: false))
+
+            """
         }
         
         return migration
     }
     
     private static func migrationHeader(name: String, model: String, timestamp: String, autoMigrate: Bool = false) -> String {
-        """
-        import Fluent
+        let imports = autoMigrate ? "import Fluent\nimport AutoMigrator" : "import Fluent"
+        return """
+        \(imports)
         
         final class M\(timestamp)_\(name): \(autoMigrate ? "AutoMigration" : "Migration") {
-            func prepare(on database: Database) -> EventLoopFuture<Void> {
+            \(autoMigrate ? "override " : "")func prepare(on database: Database) -> EventLoopFuture<Void> {
                 database.schema(\(model.capitalized).schema)
 
         """
@@ -92,7 +102,7 @@ final class MigrationGenerator {
         """
         import Fluent
             
-        final class M\(timestamp)_\(name.capitalized): Migration {
+        final class M\(timestamp)_\(name): Migration {
             func prepare(on database: Database) -> EventLoopFuture<Void> {
             }
         
@@ -103,9 +113,11 @@ final class MigrationGenerator {
     }
 
     static func initialMigrationGenerator(name: String, fields: [String], skipTimestamps: Bool, timestamp: String, autoMigrate: Bool = false) -> String {
-        var migration = migrationHeader(name: name, model: name, timestamp: timestamp)
+        var migration = migrationHeader(name: name, model: name, timestamp: timestamp, autoMigrate: autoMigrate)
 
-        migration += "\t\t\t.id()\n"
+        migration += """
+                    .id()\n
+        """
 
         migration += fieldsGenerator(name: name, fields: fields, skipTimestamps: skipTimestamps)
         
@@ -117,14 +129,13 @@ final class MigrationGenerator {
         """
         
         migration += """
-            func revert(on database: Database) -> EventLoopFuture<Void> {
+            \(autoMigrate ? "override " : "")func revert(on database: Database) -> EventLoopFuture<Void> {
                 database.schema(\(name).schema)
                     .delete()
             }
         }
         """
-        
-        
+
         return migration
     }
     
@@ -133,7 +144,8 @@ final class MigrationGenerator {
             return emptyMigration(name: name, timestamp: timestamp)
         }
         
-        var migration = migrationHeader(name: name, model: model, timestamp: timestamp)
+        var migration = migrationHeader(name: name, model: model, timestamp: timestamp, autoMigrate: autoMigrate)
+
         migration += fieldsGenerator(name: model, fields: fields, skipTimestamps: true, migrationType: type)
 
         migration += """
@@ -155,7 +167,6 @@ final class MigrationGenerator {
         migration += """
                     .update()
             }
-        
         }
         """
         return migration

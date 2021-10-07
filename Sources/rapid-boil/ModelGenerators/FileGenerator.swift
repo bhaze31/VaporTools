@@ -42,19 +42,19 @@ final class AppFiles {
     import Vapor
 
     final class AppRouter {
-      var app: Application
+        var app: Application
 
-      init(_ application: Application) {
-        self.app = application
-      }
+        init(_ application: Application) {
+            self.app = application
+        }
 
-      func loadResources() throws {
+        func loadResources() throws {
 
-      }
+        }
 
-      func loadRoutes() throws {
+        func loadRoutes() throws {
 
-      }
+        }
     }
     """
   }

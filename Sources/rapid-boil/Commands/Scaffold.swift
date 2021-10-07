@@ -109,27 +109,30 @@ struct Scaffold: ParsableCommand {
         // Creating Representable
         // If we have basic or noRepresentable, we do not generate these files
         if !(basic || noRepresentable) {
+            let apiRepresentable = ModelGenerator.generateAPIRepresentable(for: model)
+            let webRepresentable = ModelGenerator.generateWebRepresentable(for: model)
+
             if apiOnly {
                 FileGenerator.createFileWithContents(
-                    model,
+                    apiRepresentable,
                     fileName: "\(name)+APIRepresentable.swift",
                     path: .ModelPath
                 )
             } else if webOnly {
                 FileGenerator.createFileWithContents(
-                    model,
+                    webRepresentable,
                     fileName: "\(name)+WebRepresentable.swift",
                     path: .ModelPath
                 )
             } else {
                 FileGenerator.createFileWithContents(
-                    model,
+                    apiRepresentable,
                     fileName: "\(name)+APIRepresentable.swift",
                     path: .ModelPath
                 )
                 
                 FileGenerator.createFileWithContents(
-                    model,
+                    webRepresentable,
                     fileName: "\(name)+WebRepresentable.swift",
                     path: .ModelPath
                 )

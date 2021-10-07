@@ -19,7 +19,7 @@ struct Scaffold: ParsableCommand {
         if !autoMigrate {
             resource += """
                 var migrations: [Migration] = [
-                    M\(timestamp)_\(name)Model()
+                    M\(timestamp)_\(name)()
                 ]
             }
             """
@@ -84,7 +84,7 @@ struct Scaffold: ParsableCommand {
 
         let model = ModelGenerator.generateModel(name: name, fields: fields, hasTimestamps: !skipTimestamps)
 
-        let resource = resourceGenerator(name: name.capitalized, timestamp: timestamp)
+        let resource = resourceGenerator(name: name.capitalized, timestamp: timestamp, autoMigrate: autoMigrate)
         
         let migration = MigrationGenerator.initialMigrationGenerator(
             name: name.capitalized,

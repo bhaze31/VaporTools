@@ -16,7 +16,7 @@ final class ModelGenerator {
             var indexContent: IndexContent { .init(with: self) }
             
             struct IndexContent: Content {
-                init(with \(model.lowercased()): \(model) {
+                init(with \(model.lowercased()): \(model)) {
                     
                 }
             }
@@ -24,7 +24,7 @@ final class ModelGenerator {
             var getContent: GetContent { .init(with: self) }
             
             struct GetContent: Content {
-                init(with \(model.lowercased()): \(model) {
+                init(with \(model.lowercased()): \(model)) {
                     
                 }
             }
@@ -60,10 +60,10 @@ final class ModelGenerator {
         extension \(model): WebRepresentable {
             var viewContext: ViewContext { .init(with: self) }
                 
-            var viewIdentifier: String { self.id! .uuidString}
+            var viewIdentifier: String { self.id!.uuidString }
 
             struct ViewContext: Encodable {
-                init(with \(model.lowercased()): \(model) {
+                init(with \(model.lowercased()): \(model)) {
                 }
             }
         }

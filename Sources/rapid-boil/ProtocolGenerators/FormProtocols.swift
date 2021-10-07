@@ -18,6 +18,13 @@ final class FormProtocols {
             func read(from: Model)
             func validate(req: Request) -> EventLoopFuture<Bool>
         }
+        
+        protocol Initializeable: Encodable {
+            init()
+        }
+        
+        extension String: Initializeable {}
+        extension Int: Initializeable {}
         """
     }
     
@@ -25,9 +32,13 @@ final class FormProtocols {
         return """
         import Foundation
 
-        struct BasicFormField: Encodable {
-            var value: String = ""
+        struct BasicFormField<T: Initializeable>: Encodable {
+            var value: String
             var error: String?
+        
+            init(type: T.Type) {
+                self.value = T.init()
+            }
         }
         """
     }
@@ -47,9 +58,11 @@ final class FormProtocols {
         return """
         import Foundation
 
-        struct OptionalFormField: Encodable {
+        struct OptionalFormField<T: Encodable>: Encodable {
             var value: String?
             var error: String?
+            
+            init(type: T.Type) {}
         }
         """
     }

@@ -17,7 +17,12 @@ final class FormGenerator {
             return "CheckBoxFormField()"
         }
         
-        return "BasicFormField()"
+        if field.isOptional {
+            let type = field.getSwiftType().replacingOccurrences(of: "?", with: "")
+            return "OptionalFormField(type: \(type).self)"
+        }
+
+        return "BasicFormField(type: \(field.getSwiftType()).self)"
     }
     
     fileprivate static func generateFormFields(fields _fields: [Field]) -> String {
@@ -38,11 +43,11 @@ final class FormGenerator {
     
     fileprivate static func generateRequestFields(fields: [Field]) -> String {
         var request = """
-        init(req: Request) throws {
+        init(_ req: Request) throws {
                 let context = try req.content.decode(Input.self)
         
-                if !context.id.isEmpty {
-                    self.id = context.id
+                if let id = context.id {
+                    self.id = id
                 }
 
 
@@ -61,6 +66,7 @@ final class FormGenerator {
     }
     
     fileprivate static func generateWriteFields(model: String, fields: [Field]) -> String {
+        // TODO: Handle integer ids
         var write = """
         if let id = self.id {
                     \(model.lowercased()).id = UUID(uuidString: id)
@@ -80,6 +86,7 @@ final class FormGenerator {
     }
     
     fileprivate static func genereateReadFields(model: String, fields: [Field]) -> String {
+        // TODO: Handle integer ids
         var read = """
         self.id = \(model.lowercased()).id?.uuidString
         
@@ -127,7 +134,7 @@ final class FormGenerator {
                 \(formRead)
             }
 
-            func validate(req: Request) -> EventLoopFuture<Bool> {
+            func validate(_ req: Request) -> EventLoopFuture<Bool> {
                 var valid = true
         
                 // Add validations

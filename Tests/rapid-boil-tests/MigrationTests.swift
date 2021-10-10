@@ -59,6 +59,9 @@ final class MigrationTests: XCTestCase {
         import AutoMigrator
 
         final class Mtest_stamp_User: AutoMigration {
+            override var name: String { String(reflecting: self) }
+            override var defaultName: String { String(reflecting: self) }
+
             override func prepare(on database: Database) -> EventLoopFuture<Void> {
                 database.schema(User.schema)
                     .id()

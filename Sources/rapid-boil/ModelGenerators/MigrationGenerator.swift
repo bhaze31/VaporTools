@@ -87,12 +87,26 @@ final class MigrationGenerator {
     }
     
     private static func migrationHeader(name: String, model: String, timestamp: String, autoMigrate: Bool = false) -> String {
-        let imports = autoMigrate ? "import Fluent\nimport AutoMigrator" : "import Fluent"
+        if autoMigrate {
+            return """
+            import Fluent
+            import AutoMigrator
+            
+            final class M\(timestamp)_\(name): AutoMigration {
+                override var name: String { String(reflecting: self) }
+                override var defaultName: String { String(reflecting: self) }
+            
+                override func prepare(on database: Database) -> EventLoopFuture<Void> {
+                    database.schema(\(model.capitalized).schema)
+
+            """
+        }
+
         return """
-        \(imports)
+        import Fluent
         
-        final class M\(timestamp)_\(name): \(autoMigrate ? "AutoMigration" : "Migration") {
-            \(autoMigrate ? "override " : "")func prepare(on database: Database) -> EventLoopFuture<Void> {
+        final class M\(timestamp)_\(name): Migration {
+            func prepare(on database: Database) -> EventLoopFuture<Void> {
                 database.schema(\(model.capitalized).schema)
 
         """

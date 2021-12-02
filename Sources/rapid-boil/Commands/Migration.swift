@@ -6,6 +6,7 @@ struct Migration: ParsableCommand {
         abstract: "Generate a stand-alone migration",
         discussion: "To automate the process, pass the name as [Add/Delete][Field][To/From][Model]. If for example you wanted to remove the field nickname from a model User, it would be migration DeleteNicknameFromUser. If you wanted to add a field called username, you would use migration AddUsernameToUser username:string. Note that you need to add the field name you want along with its type.\nIf you just want to generate an empty migration, you can use any name for your migration and pass --empty.\nIf you have a different naming convention for migration, you can specify the model and type using --model [ModelName] --migration-type [Add/Delete]. MigrationType defaults to Add."
     )
+    
     @Argument(help: "The name of the migration to generate")
     private var name: String
     
@@ -26,37 +27,28 @@ struct Migration: ParsableCommand {
 
     func run() throws {
         let timestamp = getTimestamp()
+
+        var parts: [String] = []
+        var migrationType: MigrationType = .Unknown
         
-        // Split by most common AddXToModel
-        var parts = name.components(separatedBy: "To")
-
-        if parts.count == 1 {
-            // Split by second part, DeleteXFromModel
-            let removeParts = name.components(separatedBy: "From")
-            if removeParts.count > 1 {
-                parts = removeParts
-            }
+        if name.starts(with: "Add") {
+            parts = name.components(separatedBy: "To")
+            migrationType = .Add
+        } else if name.starts(with: "Remove") || name.starts(with: "Delete") {
+            parts = name.components(separatedBy: "From")
+            migrationType = .Delete
         }
+        
+        var modelName: String?
 
-        var modelName = parts.last
-
-        if parts.count == 1 {
+        if parts.isEmpty || parts.count == 1 {
+            modelName = model
+        } else {
+            modelName = parts.last
+            
             if let _model = model {
                 modelName = _model
-            } else {
-                modelName = nil
             }
-        } else if let _model = model {
-            modelName = _model
-        }
-
-        var migrationType: MigrationType = .Unknown
-        let verb = parts[0]
-
-        if verb.starts(with: "Add") {
-            migrationType = .Add
-        } else if verb.starts(with: "Delete") || verb.starts(with: "Remove") {
-            migrationType = .Delete
         }
 
         let migration = MigrationGenerator.generateFieldMigration(

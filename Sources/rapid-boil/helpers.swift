@@ -191,3 +191,4 @@ func extractFieldsData(fields fs: [String], failOnError: Bool = false) -> [Field
 
     return fields
 }
+

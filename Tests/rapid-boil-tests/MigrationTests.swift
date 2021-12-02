@@ -157,8 +157,6 @@ final class MigrationTests: XCTestCase {
             type: .Delete
         )
         
-        print(migration)
-        
         XCTAssertEqual(migration, """
         import Fluent
 
@@ -173,6 +171,29 @@ final class MigrationTests: XCTestCase {
                 database.schema(User.schema)
                     .field(User.FieldKeys.admin, .bool)
                     .update()
+            }
+        }
+        """)
+    }
+    
+    func testMigrationWithMissingModel() {
+        let fields = ["name:string"]
+        
+        let migration = MigrationGenerator.generateFieldMigration(
+            name: "GetRidOfName",
+            fields: fields,
+            timestamp: "test_stamp",
+            type: .Delete
+        )
+        
+        XCTAssertEqual(migration, """
+        import Fluent
+            
+        final class Mtest_stamp_GetRidOfName: Migration {
+            func prepare(on database: Database) -> EventLoopFuture<Void> {
+            }
+
+            func revert(on database: Database) -> EventLoopFuture<Void> {
             }
         }
         """)

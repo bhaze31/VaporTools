@@ -153,7 +153,7 @@ final class MigrationGenerator {
         return migration
     }
     
-    static func generateFieldMigration(name: String, model _model: String?, fields: [String], timestamp: String, type: MigrationType, autoMigrate: Bool = false) -> String {
+    static func generateFieldMigration(name: String, model _model: String? = nil, fields: [String] = [], timestamp: String = "", type: MigrationType = .Unknown, autoMigrate: Bool = false) -> String {
         guard let model = _model else {
             return emptyMigration(name: name, timestamp: timestamp)
         }

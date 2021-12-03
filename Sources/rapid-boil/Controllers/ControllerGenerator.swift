@@ -52,12 +52,38 @@ final class ControllerGenerator {
         """
     }
     
-    static func generateAsyncWebController(for model: String) -> String {
+    static func generateBlankAsyncController() -> String {
         return """
         import Vapor
         import Fluent
         
-        final 
+        final class Controller: RouteCollection {
+            static let schema: String = \"\"
+
+            func boot(routes: RouteCollection) throws {
+        
+            }
+        }
+        """
+    }
+    
+    static func generateAsyncWebController(for model: String, withAuth: Bool = false) -> String {
+        let schemaName = model
+        return """
+        import Vapor
+        import Fluent
+        
+        final class \(model)Controller: RouteCollection {
+            static let schema: String = \"\(model.toCamelCase().pluralize())\"
+        
+            func index<Model: \(model)>(request: Request) async throws -> Page<Model> {
+                return try await Model.query(on: request.db).paginate(for: request)
+            }
+        
+            func boot(routes: RouteCollection) {
+                routes.get('/
+            }
+        }
         """
     }
     

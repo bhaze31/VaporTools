@@ -1,7 +1,7 @@
 import ArgumentParser
 import Foundation
 
-struct WebRepresentable: ParsableCommand {
+final class WebCommand: ParsableCommand {
     static let configuration = CommandConfiguration(
         abstract: "Generate a WebRepresentable version of a model"
     )

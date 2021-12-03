@@ -1,7 +1,7 @@
 import ArgumentParser
 import Foundation
 
-struct APIRepresentable: ParsableCommand {
+final class APICommand: ParsableCommand {
     static let configuration = CommandConfiguration(
         abstract: "Generate an API Representable version of a model"
     )

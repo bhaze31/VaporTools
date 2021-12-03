@@ -1,7 +1,8 @@
 import ArgumentParser
 import Foundation
 
-struct Initiate: ParsableCommand {
+final class InitiateCommand: ParsableCommand {
+    static let _commandName: String = "initiate"
     static let configuration = CommandConfiguration(
         abstract: "Initiate Vapor app to rapid-boil configuration"
     )

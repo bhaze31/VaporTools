@@ -24,8 +24,6 @@ final class MigrationGenerator {
         var migration = ""
         for field in fields {
             let split = field.components(separatedBy: ":")
-            
-            #warning("TODO (04/10/2021) Handle case where no inverse should happen. This should allow us to send in only 1 param if it is dropping a field and not re-adding it on the inverse")
 
             if (split.count != 2 && split.count != 3) {
                 fatalError("Invalid argument for field: \(field)")

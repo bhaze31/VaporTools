@@ -68,7 +68,6 @@ final class ControllerGenerator {
     }
     
     static func generateAsyncWebController(for model: String, withAuth: Bool = false) -> String {
-        let schemaName = model
         return """
         import Vapor
         import Fluent

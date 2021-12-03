@@ -1,7 +1,9 @@
 import Foundation
 import ArgumentParser
 
-struct Migration: ParsableCommand {
+final class MigrationCommand: ParsableCommand {
+    static let _commandName: String = "migration"
+
     static let configuration = CommandConfiguration(
         abstract: "Generate a stand-alone migration",
         discussion: "To automate the process, pass the name as [Add/Delete][Field][To/From][Model]. If for example you wanted to remove the field nickname from a model User, it would be migration DeleteNicknameFromUser. If you wanted to add a field called username, you would use migration AddUsernameToUser username:string. Note that you need to add the field name you want along with its type.\nIf you just want to generate an empty migration, you can use any name for your migration and pass --empty.\nIf you have a different naming convention for migration, you can specify the model and type using --model [ModelName] --migration-type [Add/Delete]. MigrationType defaults to Add."

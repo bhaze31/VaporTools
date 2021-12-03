@@ -1,7 +1,9 @@
 import ArgumentParser
 import Foundation
 
-struct Scaffold: ParsableCommand {
+final class ScaffoldCommand: ParsableCommand {
+    static let _commandName: String = "scaffold"
+
     func resourceGenerator(name: String, timestamp: String, autoMigrate: Bool = false) -> String {
         var resource = """
         import Fluent
@@ -110,9 +112,9 @@ struct Scaffold: ParsableCommand {
         // If we have basic or noRepresentable, we do not generate these files
         if !(basic || noRepresentable) {
             let apiRepresentable = ModelGenerator.generateAPIRepresentable(for: name)
-            let apiController = ControllerGenerator.generateAPIController(for: name)
+//            let apiController = ControllerGenerator.generateAPIController(for: name)
             let webRepresentable = ModelGenerator.generateWebRepresentable(for: name)
-            let webController = ControllerGenerator.generateWebController(for: name)
+//            let webController = ControllerGenerator.generateWebController(for: name)
 
             if apiOnly {
                 FileGenerator.createFileWithContents(

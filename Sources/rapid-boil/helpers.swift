@@ -1,5 +1,13 @@
 import Foundation
 
+var validFieldTypes = ["string", "int", "double", "bool", "dict", "date"]
+
+func getTimestamp() -> String {
+    let formatter = DateFormatter()
+    formatter.dateFormat = "YYYYMMddHHmmssSSS"
+    return formatter.string(from: Date())
+}
+
 struct Field {
     var name: String
     var type: String

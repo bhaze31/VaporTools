@@ -10,7 +10,7 @@ final class APICommand: ParsableCommand {
     private var model: String
     
     func run() throws {
-        FileGenerator.createFileWithContents(
+        FileHandler.createFileWithContents(
             "",
             fileName: "\(model)+APIRepresentable.swift",
             path: .ModelPath

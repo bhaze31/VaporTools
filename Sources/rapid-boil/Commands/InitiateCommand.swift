@@ -25,84 +25,84 @@ final class InitiateCommand: ParsableCommand {
             print("Initiating Vapor application")
         }
 
-        FileGenerator.createFileWithContents(
+        FileHandler.createFileWithContents(
             appGenerator.appRouter,
             fileName: "router.swift",
             path: PathConstants.ApplicationPath,
             displayIfConflicting: showContents
         )
 
-        FileGenerator.createFileWithContents(
+        FileHandler.createFileWithContents(
             sharedGenerator.controllerProtocol,
             fileName: "ControllerProtocol.swift",
             path: PathConstants.ProtocolPath,
             displayIfConflicting: showContents
         )
     
-        FileGenerator.createFileWithContents(
+        FileHandler.createFileWithContents(
             sharedGenerator.resource,
             fileName: "Resource.swift",
             path: PathConstants.ProtocolPath,
             displayIfConflicting: showContents
         )
     
-        FileGenerator.createFileWithContents(
+        FileHandler.createFileWithContents(
             webGenerator.webControllerProtocol,
             fileName: "WebControllerProtocol.swift",
             path: PathConstants.WebProtocolPath,
             displayIfConflicting: showContents
         )
 
-        FileGenerator.createFileWithContents(
+        FileHandler.createFileWithContents(
             webGenerator.webRepresentable,
             fileName: "WebRepresentable.swift",
             path: PathConstants.WebProtocolPath,
             displayIfConflicting: showContents
         )
     
-        FileGenerator.createFileWithContents(
+        FileHandler.createFileWithContents(
             apiGenerator.apiProtocol,
             fileName: "APIControllerProtocol.swift",
             path: PathConstants.APIProtocolPath,
             displayIfConflicting: showContents
         )
         
-        FileGenerator.createFileWithContents(
+        FileHandler.createFileWithContents(
             apiGenerator.apiRepresentable,
             fileName: "APIRepresentable.swift",
             path: PathConstants.APIProtocolPath,
             displayIfConflicting: showContents
         )
       
-        FileGenerator.createFileWithContents(
+        FileHandler.createFileWithContents(
             FormProtocols.mainProtocol(),
             fileName: "FormProtocol.swift",
             path: .ProtocolPath,
             displayIfConflicting: showContents
         )
         
-        FileGenerator.createFileWithContents(
+        FileHandler.createFileWithContents(
             FormProtocols.basicForm(),
             fileName: "BasicFormField.swift",
             path: .FormPath,
             displayIfConflicting: showContents
         )
         
-        FileGenerator.createFileWithContents(
+        FileHandler.createFileWithContents(
             FormProtocols.arrayForm(),
             fileName: "ArrayFormField.swift",
             path: .FormPath,
             displayIfConflicting: showContents
         )
         
-        FileGenerator.createFileWithContents(
+        FileHandler.createFileWithContents(
             FormProtocols.checkBoxForm(),
             fileName: "CheckBoxFormField.swift",
             path: .FormPath,
             displayIfConflicting: showContents
         )
     
-        FileGenerator.createFileWithContents(
+        FileHandler.createFileWithContents(
             apiGenerator.validatableContent,
             fileName: "ValidatableContent.swift",
             path: PathConstants.APIProtocolPath,

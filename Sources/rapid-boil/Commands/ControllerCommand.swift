@@ -14,7 +14,7 @@ final class ControllerCommand: ParsableCommand {
             // TODO: Add a model type controller
             let controller = ControllerGenerator.generateAsyncWebController(for: _model)
             
-            FileGenerator.createFileWithContents(
+            FileHandler.createFileWithContents(
                 controller,
                 fileName: "\(_model)Controller.swift",
                 path: .ControllerPath
@@ -28,7 +28,7 @@ final class ControllerCommand: ParsableCommand {
         
         let controller = ControllerGenerator.generateBlankAsyncController()
         
-        FileGenerator.createFileWithContents(
+        FileHandler.createFileWithContents(
             controller,
             fileName: "\(timestamp)Controller.swift",
             path: .ControllerPath

@@ -1,6 +1,14 @@
 import Foundation
 
 final class ModelGenerator {
+    public static func generateControllerRepresentable() {
+        return """
+        protocol ControllerRepresentable {
+            func create(for: Request)
+            func update(for: Request)
+        }
+        """
+    }
     public static func generateAPIRepresentable(for model: String) -> String {
         // TODO: Add fields to struct IndexContent
         // TODO: Add fields to struct GetContent
@@ -71,7 +79,7 @@ final class ModelGenerator {
     }
     
     public static func generateModel(name: String, fields: [String], hasTimestamps: Bool = true) -> String {
-        if FileGenerator.fileExists(fileName: "\(name.capitalized).swift", path: .ModelPath) {
+        if FileHandler.fileExists(fileName: "\(name.capitalized).swift", path: .ModelPath) {
             fatalError("Model \(name.capitalized) already exists at path")
         }
         

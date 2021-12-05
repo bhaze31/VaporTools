@@ -102,7 +102,7 @@ final class ScaffoldCommand: ParsableCommand {
         )
         
         // Creating Model
-        FileGenerator.createFileWithContents(
+        FileHandler.createFileWithContents(
             model,
             fileName: "\(name.capitalized).swift",
             path: .ModelPath
@@ -117,25 +117,25 @@ final class ScaffoldCommand: ParsableCommand {
 //            let webController = ControllerGenerator.generateWebController(for: name)
 
             if apiOnly {
-                FileGenerator.createFileWithContents(
+                FileHandler.createFileWithContents(
                     apiRepresentable,
                     fileName: "\(name)+APIRepresentable.swift",
                     path: .ModelPath
                 )
             } else if webOnly {
-                FileGenerator.createFileWithContents(
+                FileHandler.createFileWithContents(
                     webRepresentable,
                     fileName: "\(name)+WebRepresentable.swift",
                     path: .ModelPath
                 )
             } else {
-                FileGenerator.createFileWithContents(
+                FileHandler.createFileWithContents(
                     apiRepresentable,
                     fileName: "\(name)+APIRepresentable.swift",
                     path: .ModelPath
                 )
                 
-                FileGenerator.createFileWithContents(
+                FileHandler.createFileWithContents(
                     webRepresentable,
                     fileName: "\(name)+WebRepresentable.swift",
                     path: .ModelPath
@@ -144,20 +144,20 @@ final class ScaffoldCommand: ParsableCommand {
         }
         
         if !apiOnly && !noRepresentable {
-            FileGenerator.createFileWithContents(
+            FileHandler.createFileWithContents(
                 form,
                 fileName: "\(name)Form.swift",
                 path: .FormPath
             )
         }
         
-        FileGenerator.createFileWithContents(
+        FileHandler.createFileWithContents(
             resource,
             fileName: "\(name.capitalized)Resource.swift",
             path: .ResourcePath
         )
         
-        FileGenerator.createFileWithContents(
+        FileHandler.createFileWithContents(
             migration,
             fileName: "\(timestamp)_\(name).swift",
             path: .MigrationPath

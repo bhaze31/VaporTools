@@ -128,4 +128,41 @@ final class ControllerGenerator {
         }
         """
     }
+    
+    static func generateProtocol() -> String {
+        // TODO: Add the ability to do API/Web only
+        return """
+        import Vapor
+        import Fluent
+        
+        protocol ControllerProtocol: RouteCollection {
+            associatedtype ControllerModel: Model
+        
+            func indexAPI(request: Request) async throws -> Page<ControllerModel>
+        
+            func index(request: Request) async throws -> View
+        
+            func showAPI(request: Request) async throws -> ControllerModel
+        
+            func show(request: Request) async throws -> View
+        
+            func createAPI(request: Request) async throws -> HTTPResponseStatus
+        
+            func create(request: Request) async throws -> View
+        
+            func updateAPI(request: Request) async throws -> HTTPResponseStatus
+        
+            func update(request: Request) async throws -> View
+        
+            func deleteAPI(request: Request) async throws -> HTTPResponseStatus
+        
+            func delete(request: Request) async throws -> View
+        
+            func find(request: Request) async throws -> ControllerModel
+        }
+        
+        extension ControllerProtocol {
+        }
+        """
+    }
 }

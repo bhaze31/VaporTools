@@ -10,7 +10,7 @@ final class WebCommand: ParsableCommand {
     private var model: String
     
     func run() throws {
-        FileGenerator.createFileWithContents(
+        FileHandler.createFileWithContents(
             "",
             fileName: "\(model)+WebRepresentable.swift",
             path: .ModelPath

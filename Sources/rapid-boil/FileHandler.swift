@@ -4,6 +4,31 @@ final class FileHandler {
     static func fileExists(fileName: String, path: PathConstants) -> Bool {
         return FileManager.default.fileExists(atPath: "\(path.rawValue)/\(fileName)")
     }
+    
+    static func createViewFileWithContents(_ contents: String, model: String, fileName: String, displayIfConflicting: Bool = false) {
+        var path = PathConstants.ViewsPath.rawValue
+        path += "/\(model.capitalized)/\(fileName).swift"
+        
+        if FileManager.default.fileExists(atPath: path) {
+            print("File \(fileName) already exists")
+            
+            if displayIfConflicting {
+                print("\nWould-be contents of \(fileName)")
+                print(contents)
+                print("\n\n")
+            }
+            
+            return
+        }
+        
+        print("Creating file at path: \(path)/\(fileName)")
+        
+        FileManager.default.createFile(
+            atPath: path,
+            contents: contents.data(using: .utf8),
+            attributes: [:]
+        )
+    }
 
     static func createFileWithContents(_ contents: String, fileName: String, path _path: PathConstants, displayIfConflicting: Bool = false) {
         createFolderUnlessExists(_path)
@@ -17,11 +42,17 @@ final class FileHandler {
                 print(contents)
                 print("\n\n")
             }
-        } else {
-            print("Creating file at path: \(path)/\(fileName)")
-
-            FileManager.default.createFile(atPath: "\(path)/\(fileName)", contents: contents.data(using: .utf8), attributes: [:])
+            
+            return
         }
+
+        print("Creating file at path: \(path)/\(fileName)")
+
+        FileManager.default.createFile(
+            atPath: "\(path)/\(fileName)",
+            contents: contents.data(using: .utf8),
+            attributes: [:]
+        )
     }
 
     static func createFolderUnlessExists(_ _folderName: PathConstants) {

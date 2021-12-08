@@ -46,9 +46,9 @@ final class ProtocolGenerator {
 
         extension ControllerProtocol {
             var idParamKey: String { "id" }
-            var idPathComponent: PathComponent { .init(stringLiteral: ":\(self.idParamKey)") }
+            var idPathComponent: PathComponent { .init(stringLiteral: \":\\(self.idParamKey)\") }
             var modelKey: String { ControllerModel.schema }
-            var modelPathComponent: PathComponent { .init(stringLiteral: "\(self.modelKey)") }
+            var modelPathComponent: PathComponent { .init(stringLiteral: \"\\(self.modelKey)\") }
 
             func indexAPI(request: Request) async throws -> Page<ControllerModel> {
                 return try await ControllerModel.query(on: request.db).paginate(for: request)

@@ -2,6 +2,51 @@ import XCTest
 @testable import rapid_boil
 
 final class ViewTests: XCTestCase {
+    func testMainView() {
+        let view = ViewsGenerator.generateMainView()
+        
+        XCTAssertEqual(view, """
+        <!DOCTYPE htnl>
+        <html>
+            <head>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+                <meta name="description" content="">
+                <meta name="author" content="">
+                
+                <title>#import("title")</title>
+            </head>
+            <body>
+                #import("body")
+            </body>
+        </html>
+        """)
+    }
+    
+    func testShowView() throws {
+        let fields = [
+            "name:string",
+            "email:string"
+        ]
+        
+        let view = ViewsGenerator.generateShowView(model: "User", fields: fields)
+        
+        XCTAssertEqual(view, """
+        extend("main"):
+            #export("title"):
+                User - Show
+            #endexport
+
+            #export("body"):
+                <div>
+                    <p>model.name</p>
+                    <p>model.email</p>
+                </div>
+            #endexport
+        #endextend
+        """)
+    }
+    
     func testIndexView() throws {
         let fields = [
             "name:string",

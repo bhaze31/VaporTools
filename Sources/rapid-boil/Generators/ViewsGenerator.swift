@@ -80,4 +80,59 @@ final class ViewsGenerator {
         #endextend
         """
     }
+    
+    private static func getFieldsForShow(fields: [String]) -> String {
+        var div = """
+        <div>
+
+        """
+        
+        for field in fields {
+            let fieldname = field.split(separator: ":")[0]
+            div += """
+                        <p>model.\(fieldname)</p>
+
+            """
+        }
+        
+        div += """
+                </div>
+        """
+
+        return div
+    }
+    
+    static func generateShowView(model: String, fields: [String]) -> String {
+        let fields = ViewsGenerator.getFieldsForShow(fields: fields)
+        return """
+        extend(\"main\"):
+            #export(\"title\"):
+                \(model.capitalized) - Show
+            #endexport
+        
+            #export(\"body\"):
+                \(fields)
+            #endexport
+        #endextend
+        """
+    }
+    
+    static func generateMainView() -> String {
+        return """
+        <!DOCTYPE htnl>
+        <html>
+            <head>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+                <meta name="description" content="">
+                <meta name="author" content="">
+                
+                <title>#import("title")</title>
+            </head>
+            <body>
+                #import("body")
+            </body>
+        </html>
+        """
+    }
 }

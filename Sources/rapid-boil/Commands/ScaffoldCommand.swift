@@ -70,12 +70,25 @@ final class ScaffoldCommand: ParsableCommand {
             hasTimestamps: !skipTimestamps
         )
         
+        let showView = ViewsGenerator.generateShowView(
+            model: model,
+            fields: fields
+        )
+        
+        FileHandler.createMainView()
+
         FileHandler.createViewFileWithContents(
             indexView,
             model: name,
             fileName: "index.leaf"
         )
         
+        FileHandler.createViewFileWithContents(
+            showView,
+            model: model,
+            fileName: "show.leaf"
+        )
+
         FileHandler.createFileWithContents(
             model,
             fileName: "\(name.capitalized).swift",

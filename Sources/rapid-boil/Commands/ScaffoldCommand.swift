@@ -42,9 +42,6 @@ final class ScaffoldCommand: ParsableCommand {
     @Flag(help: "Only generate an APIRepresentable version for the Model")
     private var apiOnly = false
     
-    @Flag(help: "Only generate a WebRepresentable version for the Model")
-    private var webOnly = false
-    
     @Flag(help: "Do not generate representable versions of the Model")
     private var noRepresentable = false
     
@@ -71,7 +68,7 @@ final class ScaffoldCommand: ParsableCommand {
         )
         
         let showView = ViewsGenerator.generateShowView(
-            model: model,
+            model: name,
             fields: fields
         )
         
@@ -80,13 +77,13 @@ final class ScaffoldCommand: ParsableCommand {
         FileHandler.createViewFileWithContents(
             indexView,
             model: name,
-            fileName: "index.leaf"
+            fileName: "index"
         )
         
         FileHandler.createViewFileWithContents(
             showView,
-            model: model,
-            fileName: "show.leaf"
+            model: name,
+            fileName: "show"
         )
 
         FileHandler.createFileWithContents(

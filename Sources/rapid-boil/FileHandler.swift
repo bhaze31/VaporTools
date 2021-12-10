@@ -6,8 +6,12 @@ final class FileHandler {
     }
     
     static func createViewFileWithContents(_ contents: String, model: String, fileName: String, displayIfConflicting: Bool = false) {
+        createFolderUnlessExists(PathConstants.ViewsPath.rawValue)
+        createFolderUnlessExists(PathConstants.ViewsPath.rawValue + "/\(model.capitalized)")
+
         var path = PathConstants.ViewsPath.rawValue
-        path += "/\(model.capitalized)/\(fileName).swift"
+        
+        path += "/\(model.capitalized)/\(fileName).leaf"
         
         if FileManager.default.fileExists(atPath: path) {
             print("File \(fileName) already exists")
@@ -21,7 +25,7 @@ final class FileHandler {
             return
         }
         
-        print("Creating file at path: \(path)/\(fileName)")
+        print("Creating file at path: \(path)")
         
         FileManager.default.createFile(
             atPath: path,
@@ -31,12 +35,15 @@ final class FileHandler {
     }
     
     static func createMainView() {
+        createFolderUnlessExists(PathConstants.ViewsPath.rawValue)
+
         let path = PathConstants.ViewsPath.rawValue
-        if !FileManager.default.fileExists(atPath: path) {
+
+        if !FileHandler.fileExists(fileName: "main.leaf", path: PathConstants.ViewsPath) {
             let mainView = ViewsGenerator.generateMainView()
             
             FileManager.default.createFile(
-                atPath: path,
+                atPath: path + "/main.leaf",
                 contents: mainView.data(using: .utf8),
                 attributes: [:]
             )
@@ -44,7 +51,8 @@ final class FileHandler {
     }
 
     static func createFileWithContents(_ contents: String, fileName: String, path _path: PathConstants, displayIfConflicting: Bool = false) {
-        createFolderUnlessExists(_path)
+        createFolderUnlessExists(_path.rawValue)
+
         let path = _path.rawValue
 
         if FileManager.default.fileExists(atPath: "\(path)/\(fileName)") {
@@ -68,9 +76,7 @@ final class FileHandler {
         )
     }
 
-    static func createFolderUnlessExists(_ _folderName: PathConstants) {
-        let folderName = _folderName.rawValue
-
+    static func createFolderUnlessExists(_ folderName: String) {
         var directory: ObjCBool = true
         if !FileManager.default.fileExists(atPath: folderName, isDirectory: &directory) {
             do {

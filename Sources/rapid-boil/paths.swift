@@ -7,7 +7,7 @@ enum PathConstants: String {
 
     case ModelPath = "Source/App/Models"
 
-    case ResourcePath = "Source/App/Resources"
+    case ResourcePath = "Resource/Views"
 
     case ControllerPath = "Source/App/Controllers"
 
@@ -28,7 +28,7 @@ enum PathConstants: String {
     
     case ModelPath = "Sources/App/Models"
     
-    case ResourcePath = "Sources/App/Resources"
+    case ResourcePath = "Resources/Views"
     
     case ControllerPath = "Sources/App/Controllers"
     

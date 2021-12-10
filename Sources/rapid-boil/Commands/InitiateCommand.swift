@@ -16,7 +16,6 @@ final class InitiateCommand: ParsableCommand {
     func run() throws {
         let appGenerator = AppFiles()
         let apiGenerator = APIProtocols()
-        let webGenerator = WebProtocols()
         let sharedGenerator = SharedProtocols()
 
         if name != nil {
@@ -45,21 +44,7 @@ final class InitiateCommand: ParsableCommand {
             path: PathConstants.ProtocolPath,
             displayIfConflicting: showContents
         )
-    
-        FileHandler.createFileWithContents(
-            webGenerator.webControllerProtocol,
-            fileName: "WebControllerProtocol.swift",
-            path: PathConstants.WebProtocolPath,
-            displayIfConflicting: showContents
-        )
-
-        FileHandler.createFileWithContents(
-            webGenerator.webRepresentable,
-            fileName: "WebRepresentable.swift",
-            path: PathConstants.WebProtocolPath,
-            displayIfConflicting: showContents
-        )
-    
+        
         FileHandler.createFileWithContents(
             apiGenerator.apiProtocol,
             fileName: "APIControllerProtocol.swift",
@@ -73,35 +58,7 @@ final class InitiateCommand: ParsableCommand {
             path: PathConstants.APIProtocolPath,
             displayIfConflicting: showContents
         )
-      
-        FileHandler.createFileWithContents(
-            FormProtocols.mainProtocol(),
-            fileName: "FormProtocol.swift",
-            path: .ProtocolPath,
-            displayIfConflicting: showContents
-        )
-        
-        FileHandler.createFileWithContents(
-            FormProtocols.basicForm(),
-            fileName: "BasicFormField.swift",
-            path: .FormPath,
-            displayIfConflicting: showContents
-        )
-        
-        FileHandler.createFileWithContents(
-            FormProtocols.arrayForm(),
-            fileName: "ArrayFormField.swift",
-            path: .FormPath,
-            displayIfConflicting: showContents
-        )
-        
-        FileHandler.createFileWithContents(
-            FormProtocols.checkBoxForm(),
-            fileName: "CheckBoxFormField.swift",
-            path: .FormPath,
-            displayIfConflicting: showContents
-        )
-    
+
         FileHandler.createFileWithContents(
             apiGenerator.validatableContent,
             fileName: "ValidatableContent.swift",

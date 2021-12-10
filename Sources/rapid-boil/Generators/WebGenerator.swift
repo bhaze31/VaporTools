@@ -28,28 +28,4 @@ final class WebGenerator {
         
         return fieldInitializers
     }
-
-    static func generateExtension(model: String, fields: [String]) -> String {
-        let fieldData = generateFieldData(fields: fields)
-        let fieldInitializers = generateFieldInitializers(model: model, fields: fields)
-        
-        let webExtension = """
-        import Foundation
-        
-        extension \(model): WebRepresentable {
-            var viewContext: ViewContext { .init(with: self) }
-        
-            var viewIdentifier: String { self.id!.uuidString }
-        
-            struct ViewContext: Encodable {
-                \(fieldData)
-                init(with \(model.lowercased()): \(model)) {
-                    \(fieldInitializers)
-                }
-            }
-        }
-        """
-        
-        return webExtension
-    }
 }

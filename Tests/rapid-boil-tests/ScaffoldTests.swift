@@ -9,7 +9,7 @@ final class ScaffoldTests: XCTestCase {
         import Vapor
         import Fluent
 
-        final class User: Model {
+        final class User: ControllerModel {
             static let schema = "user"
 
             struct FieldKeys {

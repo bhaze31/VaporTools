@@ -8,10 +8,10 @@ struct RapidBoil: ParsableCommand {
         rapid-boil is an opinionated library, and as such it makes certain assumptions about the configuration of your application. To learn the set up and concepts behind these opions, run `rapid-boil manual`.
         """,
         subcommands: [
-            Manual.self,
-            Initiate.self,
-            Scaffold.self,
-            Generate.self
+            ManualCommand.self,
+            InitiateCommand.self,
+            ScaffoldCommand.self,
+            GenerateCommand.self
         ]
     )
 

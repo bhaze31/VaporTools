@@ -1,72 +1,58 @@
 import Foundation
 
-#if DEBUG
-enum PathConstants: String {
-    case BasePath = "Source"
-    case ApplicationPath = "Source/App"
-
-    case ModelPath = "Source/App/Models"
-
-    case ResourcePath = "Source/App/Resources"
-
-    case MigrationPath = "Source/App/Migrations"
-
-    case FormPath = "Source/App/Forms"
-
-    case ProtocolPath = "Source/App/Protocols"
-    case APIProtocolPath = "Source/App/Protocols/APIProtocols"
-    case WebProtocolPath = "Source/App/Protocols/WebProtocols"
-}
-#else
-enum PathConstants: String {
-    case BasePath = "Sources"
-    case ApplicationPath = "Sources/App"
-    
-    case ModelPath = "Sources/App/Models"
-    
-    case ResourcePath = "Sources/App/Resources"
-    
-    case MigrationPath = "Sources/App/Migrations"
-    
-    case FormPath = "Sources/App/Forms"
-    
-    case ProtocolPath = "Sources/App/Protocols"
-    case APIProtocolPath = "Sources/App/Protocols/APIProtocols"
-    case WebProtocolPath = "Sources/App/Protocols/WebProtocols"
-}
-#endif
-
-final class AppFiles {
-  var appRouter: String {
-    return """
-    import Vapor
-
-    final class AppRouter {
-        var app: Application
-
-        init(_ application: Application) {
-            self.app = application
-        }
-
-        func loadResources() throws {
-
-        }
-
-        func loadRoutes() throws {
-
-        }
-    }
-    """
-  }
-}
-
-final class FileGenerator {
+final class FileHandler {
     static func fileExists(fileName: String, path: PathConstants) -> Bool {
         return FileManager.default.fileExists(atPath: "\(path.rawValue)/\(fileName)")
     }
+    
+    static func createViewFileWithContents(_ contents: String, model: String, fileName: String, displayIfConflicting: Bool = false) {
+        createFolderUnlessExists(PathConstants.ViewsPath.rawValue)
+        createFolderUnlessExists(PathConstants.ViewsPath.rawValue + "/\(model.capitalized)")
+
+        var path = PathConstants.ViewsPath.rawValue
+        
+        path += "/\(model.capitalized)/\(fileName).leaf"
+        
+        if FileManager.default.fileExists(atPath: path) {
+            print("File \(fileName) already exists")
+            
+            if displayIfConflicting {
+                print("\nWould-be contents of \(fileName)")
+                print(contents)
+                print("\n\n")
+            }
+            
+            return
+        }
+        
+        print("Creating file at path: \(path)")
+        
+        FileManager.default.createFile(
+            atPath: path,
+            contents: contents.data(using: .utf8),
+            attributes: [:]
+        )
+    }
+    
+    static func createMainView() {
+        createFolderUnlessExists(PathConstants.ViewsPath.rawValue)
+
+        let path = PathConstants.ViewsPath.rawValue
+
+        if !FileHandler.fileExists(fileName: "main.leaf", path: PathConstants.ViewsPath) {
+            let mainView = ViewsGenerator.generateMainView()
+            
+            FileManager.default.createFile(
+                atPath: path + "/main.leaf",
+                contents: mainView.data(using: .utf8),
+                attributes: [:]
+            )
+        }
+    }
 
     static func createFileWithContents(_ contents: String, fileName: String, path _path: PathConstants, displayIfConflicting: Bool = false) {
-        createFolderUnlessExists(_path)
+        createFolderUnlessExists(_path.rawValue)
+
         let path = _path.rawValue
 
         if FileManager.default.fileExists(atPath: "\(path)/\(fileName)") {
@@ -77,16 +63,20 @@ final class FileGenerator {
                 print(contents)
                 print("\n\n")
             }
-        } else {
-            print("Creating file at path: \(path)/\(fileName)")
-
-            FileManager.default.createFile(atPath: "\(path)/\(fileName)", contents: contents.data(using: .utf8), attributes: [:])
+            
+            return
         }
+
+        print("Creating file at path: \(path)/\(fileName)")
+
+        FileManager.default.createFile(
+            atPath: "\(path)/\(fileName)",
+            contents: contents.data(using: .utf8),
+            attributes: [:]
+        )
     }
 
-    static func createFolderUnlessExists(_ _folderName: PathConstants) {
-        let folderName = _folderName.rawValue
-
+    static func createFolderUnlessExists(_ folderName: String) {
         var directory: ObjCBool = true
         if !FileManager.default.fileExists(atPath: folderName, isDirectory: &directory) {
             do {

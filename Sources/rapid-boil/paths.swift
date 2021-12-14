@@ -12,6 +12,8 @@ enum PathConstants: String {
     case ControllerPath = "Source/App/Controllers"
 
     case MigrationPath = "Source/App/Migrations"
+    
+    case MiddlewarePath = "Source/App/Middleware"
 
     case FormPath = "Source/App/Forms"
     

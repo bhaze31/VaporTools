@@ -11,7 +11,8 @@ struct RapidBoil: ParsableCommand {
             ManualCommand.self,
             InitiateCommand.self,
             ScaffoldCommand.self,
-            GenerateCommand.self
+            GenerateCommand.self,
+            AuthenticationCommand.self
         ]
     )
 

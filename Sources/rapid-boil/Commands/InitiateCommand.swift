@@ -15,7 +15,6 @@ final class InitiateCommand: ParsableCommand {
 
     func run() throws {
         let appGenerator = AppFiles()
-        let apiGenerator = APIProtocols()
         let sharedGenerator = SharedProtocols()
 
         if name != nil {
@@ -42,27 +41,6 @@ final class InitiateCommand: ParsableCommand {
             sharedGenerator.resource,
             fileName: "Resource.swift",
             path: PathConstants.ProtocolPath,
-            displayIfConflicting: showContents
-        )
-        
-        FileHandler.createFileWithContents(
-            apiGenerator.apiProtocol,
-            fileName: "APIControllerProtocol.swift",
-            path: PathConstants.APIProtocolPath,
-            displayIfConflicting: showContents
-        )
-        
-        FileHandler.createFileWithContents(
-            apiGenerator.apiRepresentable,
-            fileName: "APIRepresentable.swift",
-            path: PathConstants.APIProtocolPath,
-            displayIfConflicting: showContents
-        )
-
-        FileHandler.createFileWithContents(
-            apiGenerator.validatableContent,
-            fileName: "ValidatableContent.swift",
-            path: PathConstants.APIProtocolPath,
             displayIfConflicting: showContents
         )
     }

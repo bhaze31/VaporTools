@@ -13,35 +13,89 @@ final class InitiateCommand: ParsableCommand {
     @Flag(help: "Display contents of conflicting files")
     private var showContents = false
 
-    func run() throws {
-        let appGenerator = AppFiles()
-        let sharedGenerator = SharedProtocols()
+    @Flag(name: .shortAndLong, help: "Add authentication middleware")
+    private var authenticator = false
+    
+    @Flag(name: .shortAndLong, help: "Only use JWT authentication middleware with authenticator flag.")
+    private var jwt = false
+    
+    @Flag(name: .shortAndLong, help: "Only use web session middleware with authenticator flag.")
+    private var web = false
+    
 
+    func run() throws {
         if name != nil {
             print("Initiating Vapor application \(name!)")
         } else {
             print("Initiating Vapor application")
         }
-
+        
+        let controllerProtocol = ControllerGenerator.generateControllerProtocol()
+        
         FileHandler.createFileWithContents(
-            appGenerator.appRouter,
-            fileName: "router.swift",
-            path: PathConstants.ApplicationPath,
-            displayIfConflicting: showContents
-        )
-
-        FileHandler.createFileWithContents(
-            sharedGenerator.controllerProtocol,
+            controllerProtocol,
             fileName: "ControllerProtocol.swift",
-            path: PathConstants.ProtocolPath,
-            displayIfConflicting: showContents
+            path: .ProtocolPath
         )
-    
+        
+        let modelProtocol = ControllerGenerator.generateModelProtocol()
+        
         FileHandler.createFileWithContents(
-            sharedGenerator.resource,
-            fileName: "Resource.swift",
-            path: PathConstants.ProtocolPath,
-            displayIfConflicting: showContents
+            modelProtocol,
+            fileName: "ControllerModelProtocol.swift",
+            path: .ProtocolPath
         )
+        
+        let configuration = ControllerGenerator.generateControllerProtocol()
+        
+        if authenticator {
+            let jwtMiddleware = AuthenticationGenerator.generateJWTMiddleware()
+            let jwtToken = AuthenticationGenerator.generateToken()
+            let webMiddleware = AuthenticationGenerator.generateWebMiddleware()
+
+            if jwt {
+                FileHandler.createFileWithContents(
+                    jwtMiddleware,
+                    fileName: "APIMiddleware.swift",
+                    path: .MiddlewarePath,
+                    displayIfConflicting: true
+                )
+                
+                FileHandler.createFileWithContents(
+                    jwtToken,
+                    fileName: "Token.swift",
+                    path: .ModelPath,
+                    displayIfConflicting: true
+                )
+            } else if web {
+                FileHandler.createFileWithContents(
+                    webMiddleware,
+                    fileName: "WebMiddleware.swift",
+                    path: .MiddlewarePath,
+                    displayIfConflicting: true
+                )
+            } else {
+                FileHandler.createFileWithContents(
+                    jwtMiddleware,
+                    fileName: "APIMiddleware.swift",
+                    path: .MiddlewarePath,
+                    displayIfConflicting: true
+                )
+                
+                FileHandler.createFileWithContents(
+                    jwtToken,
+                    fileName: "Token.swift",
+                    path: .ModelPath,
+                    displayIfConflicting: true
+                )
+                
+                FileHandler.createFileWithContents(
+                    webMiddleware,
+                    fileName: "WebMiddleware.swift",
+                    path: .MiddlewarePath,
+                    displayIfConflicting: true
+                )
+            }
+        }
     }
 }

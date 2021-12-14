@@ -3,7 +3,7 @@ import Foundation
 
 final class ControllerCommand: ParsableCommand {
 	static let configuration = CommandConfiguration(
-		abstract: "Generate a controller with the given name. If no name is passed a blank controller is created with the boot command. Otherwise, the name is assumed to be the model and a CRUD controller is generated."
+	    abstract: "Generate a controller with the given name. If no name is passed a blank controller is created with the boot command. Otherwise, the name is assumed to be the model and a CRUD controller is generated."
 	)
 	
 	@Option(help: "The name of the model to use for the controller")

@@ -1,85 +1,39 @@
 import Foundation
 
 final class ControllerGenerator {
-    static func generateBlankAsyncController() -> String {
+    static func generateModelController(for model: String) -> String {
         return """
         import Vapor
         import Fluent
         
-        final class Controller: ControllerProtocol {
-            static let schema: String = ""
-
-            func boot(routes: RouteCollection) throws {
-        
-            }
+        final class \(model.toModelCase())Controller: ControllerProtocol {
+            typealias ControllerModel = \(model.toModelCase())
         }
         """
     }
     
-    static func generateAsyncWebController(for model: String, withAuth: Bool = false) -> String {
+    static func generateAsyncController(for model: String? = nil) -> String {
+        var controllerName = ""
+        var schema = ""
+        if let _model = model {
+            controllerName = "\(_model.toCamelCase())Controller"
+            schema = "\(_model.toCamelCase()).pluralize()"
+        }
         return """
         import Vapor
         import Fluent
         
-        final class \(model)Controller: RouteCollection {
-            static let schema: String = \"\(model.toCamelCase().pluralize())\"
-        
-            func index<Model: \(model)>(request: Request) async throws -> Page<Model> {
-                return try await Model.query(on: request.db).paginate(for: request)
-            }
-        
-            func boot(routes: RouteCollection) {
-                routes.get('/
-            }
-        }
-        """
-    }
-    
-    static func generateAsyncController(for model: String, name: String?) -> String {
-        return """
-        import Vapor
-        import Fluent
-        
-        final class \(name ?? model)Controller: ModelController {
-            typealias Model = \(model)
-            
-            func index(req: Request) async throws -> Page<Model> {
-                return async Model.query(on: req.db).paginate(for: req)
-            }
-            
-            func get(req: Request) async throws -> Model {
-                
-            }
-        }
-        
-        """
-    }
-    
-    static func generateAPIController(for model: String) -> String {
-        return """
-        import Vapor
-
-        final class \(model)APIController: APIControllerProtocol {
-            typealias Model = \(model)
-            
-        }
-        """
-    }
-    
-    static func generateWebController(for model: String) -> String {
-        return """
-        import Vapor
-
-        final class \(model)WebController: WebControllerProtocol {
-            typealias EditForm = \(model)Form
-            
-            typealias Model = \(model)
+        final class \(controllerName): RouteCollection {
+            static let schema: String = "\(schema)"
         }
         """
     }
     
     static func generateModelProtocol() -> String {
         return """
+        import Vapor
+        import Fluent
+        
         protocol ControllerModelProtocol: Model, AsyncResponseEncodable {
             func create(for: Request)
             func update(for: Request)

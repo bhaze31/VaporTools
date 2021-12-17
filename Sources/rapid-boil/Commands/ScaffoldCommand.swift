@@ -53,8 +53,10 @@ final class ScaffoldCommand: ParsableCommand {
 
         let model = ModelGenerator.generateModel(name: name, fields: fields, hasTimestamps: !skipTimestamps)
         
+        let controller = ControllerGenerator.generateModelController(for: name)
+        
         let migration = MigrationGenerator.initialMigrationGenerator(
-            name: name.capitalized,
+            name: name.toModelCase(),
             fields: fields,
             skipTimestamps: skipTimestamps,
             timestamp: timestamp,
@@ -62,7 +64,7 @@ final class ScaffoldCommand: ParsableCommand {
         )
         
         let indexView = ViewsGenerator.generateIndexView(
-            for: name,
+            for: name.toModelCase(),
             fields: fields,
             hasTimestamps: !skipTimestamps
         )
@@ -88,8 +90,14 @@ final class ScaffoldCommand: ParsableCommand {
 
         FileHandler.createFileWithContents(
             model,
-            fileName: "\(name.capitalized).swift",
+            fileName: "\(name.toModelCase()).swift",
             path: .ModelPath
+        )
+        
+        FileHandler.createFileWithContents(
+            controller,
+            fileName: "\(name.toModelCase())Controller.swift",
+            path: .ControllerPath
         )
         
         FileHandler.createFileWithContents(
@@ -97,5 +105,7 @@ final class ScaffoldCommand: ParsableCommand {
             fileName: "\(timestamp)_\(name).swift",
             path: .MigrationPath
         )
+        
+        
     }
 }

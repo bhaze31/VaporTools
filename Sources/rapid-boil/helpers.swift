@@ -22,10 +22,10 @@ struct Field {
         switch type {
             case "string", "int", "double", "bool", "date", "any":
                 if isArray {
-                    return "[\(type.capitalized)]\(isOptional ? "?" : "")"
+                    return "[\(type.toModelCase())]\(isOptional ? "?" : "")"
                 }
                 
-                return type.capitalized.appending(isOptional ? "?" : "")
+                return type.toModelCase().appending(isOptional ? "?" : "")
             case "dict":
                 // If value type is not empty, but is a custom type, don't capitalize it
                 var value = valueType ?? "any"
@@ -38,9 +38,9 @@ struct Field {
                     value = "any"
                 }
 
-                value = validTypes.contains(value) ? value.capitalized : (valueType ?? "Any")
+                value = validTypes.contains(value) ? value.toModelCase() : (valueType ?? "Any")
                 
-                let dictType = "Dictionary<\(keyType?.capitalized ?? "Any"), \(value)>"
+                let dictType = "Dictionary<\(keyType?.toModelCase() ?? "Any"), \(value)>"
 
                 if isArray {
                     return "[\(dictType)]\(isOptional ? "?" : "")"

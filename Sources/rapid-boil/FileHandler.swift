@@ -7,11 +7,11 @@ final class FileHandler {
     
     static func createViewFileWithContents(_ contents: String, model: String, fileName: String, displayIfConflicting: Bool = false) {
         createFolderUnlessExists(PathConstants.ViewsPath.rawValue)
-        createFolderUnlessExists(PathConstants.ViewsPath.rawValue + "/\(model.capitalized)")
+        createFolderUnlessExists(PathConstants.ViewsPath.rawValue + "/\(model.toModelCase())")
 
         var path = PathConstants.ViewsPath.rawValue
         
-        path += "/\(model.capitalized)/\(fileName).leaf"
+        path += "/\(model.toModelCase())/\(fileName).leaf"
         
         if FileManager.default.fileExists(atPath: path) {
             print("File \(fileName) already exists")
@@ -118,7 +118,7 @@ final class FileHandler {
                             optional = true
                         }
                         
-                        fileData.append("\t@Field(key: FieldKeys.\(fieldData[0])) var \(fieldData[0]): \(fieldData[1].capitalized)\(optional ? "?" : "")")
+                        fileData.append("\t@Field(key: FieldKeys.\(fieldData[0])) var \(fieldData[0]): \(fieldData[1].toModelCase())\(optional ? "?" : "")")
                     }
                 }
                 

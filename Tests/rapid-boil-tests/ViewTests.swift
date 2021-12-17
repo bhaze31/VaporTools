@@ -71,7 +71,7 @@ final class ViewTests: XCTestCase {
                     <tr>
                         <th>Name</th>
                         <th>Email</th>
-                        <th>Created_At</th>
+                        <th>Created At</th>
                     </tr>
 
                     #for(item in items) {

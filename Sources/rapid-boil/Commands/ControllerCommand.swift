@@ -12,7 +12,7 @@ final class ControllerCommand: ParsableCommand {
 	func run() throws {
         if let _model = model {
             // TODO: Add a model type controller
-            let controller = ControllerGenerator.generateAsyncWebController(for: _model)
+            let controller = ControllerGenerator.generateAsyncController(for: _model)
             
             FileHandler.createFileWithContents(
                 controller,
@@ -26,7 +26,7 @@ final class ControllerCommand: ParsableCommand {
         // TODO: Add a blank controller
         let timestamp = getTimestamp()
         
-        let controller = ControllerGenerator.generateBlankAsyncController()
+        let controller = ControllerGenerator.generateAsyncController()
         
         FileHandler.createFileWithContents(
             controller,

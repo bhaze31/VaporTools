@@ -30,6 +30,14 @@ final class InitiateCommand: ParsableCommand {
             print("Initiating Vapor application")
         }
         
+        let configuration = ConfigurationGenerator.generateRedisConfiguration()
+        
+        FileHandler.createFileWithContents(
+            configuration,
+            fileName: "configure.swift",
+            path: .ApplicationPath
+        )
+
         let controllerProtocol = ControllerGenerator.generateControllerProtocol()
         
         FileHandler.createFileWithContents(
@@ -45,8 +53,6 @@ final class InitiateCommand: ParsableCommand {
             fileName: "ControllerModelProtocol.swift",
             path: .ProtocolPath
         )
-        
-        let configuration = ControllerGenerator.generateControllerProtocol()
         
         if authenticator {
             let jwtMiddleware = AuthenticationGenerator.generateJWTMiddleware()

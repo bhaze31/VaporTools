@@ -7,7 +7,7 @@ final class WebGenerator {
         for field in fields {
             // TODO: Handle optionals and arrays
             let parts = field.split(separator: ":")
-            fieldString += "\t\tvar \(parts[0]): \(parts[1].capitalized)\n"
+            fieldString += "\t\tvar \(parts[0]): \(String(parts[1]).toModelCase())\n"
         }
         
         return fieldString

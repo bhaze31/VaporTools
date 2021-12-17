@@ -17,7 +17,7 @@ final class MigrationGenerator {
     }
     
     private static func generateDeleteField(model: String, field: String) -> String {
-        return ".deleteField(\(model.capitalized).FieldKeys.\(field.lowercased()))"
+        return ".deleteField(\(model.toModelCase()).FieldKeys.\(field.lowercased()))"
     }
     
     private static func fieldsGenerator(name: String, fields: [String], skipTimestamps: Bool, migrationType: MigrationType = .Add, isInverse: Bool = false) -> String {
@@ -95,7 +95,7 @@ final class MigrationGenerator {
                 override var defaultName: String { String(reflecting: self) }
             
                 override func prepare(on database: Database) -> EventLoopFuture<Void> {
-                    database.schema(\(model.capitalized).schema)
+                    database.schema(\(model.toModelCase()).schema)
 
             """
         }
@@ -105,7 +105,7 @@ final class MigrationGenerator {
         
         final class M\(timestamp)_\(name): Migration {
             func prepare(on database: Database) -> EventLoopFuture<Void> {
-                database.schema(\(model.capitalized).schema)
+                database.schema(\(model.toModelCase()).schema)
 
         """
     }

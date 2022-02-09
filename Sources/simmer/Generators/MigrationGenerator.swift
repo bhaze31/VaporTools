@@ -2,7 +2,9 @@ import Foundation
 
 enum MigrationType: String {
     case Add
+    case Create
     case Delete
+    case Drop
     case Unknown
 }
 
@@ -110,18 +112,36 @@ final class MigrationGenerator {
         """
     }
 
-    private static func emptyMigration(name: String, timestamp: String) -> String {
-        """
-        import Fluent
+    public static func emptyMigration(name: String, timestamp: String, autoMigrate: Bool = false) -> String {
+        if autoMigrate {
+            return """
+            import Fluent
+            import AutoMigrator
+
+            final class M\(timestamp)_\(name): AutoMigration {
+                override var name: String { String(reflecting: self) }
+                override var defaultName: String { String(reflecting: self) }
+
+                override func prepare(on database: Database) -> EventLoopFuture<Void> {
+                }
             
-        final class M\(timestamp)_\(name): Migration {
-            func prepare(on database: Database) -> EventLoopFuture<Void> {
+                override func revert(on database: Database) -> EventLoopFuture<Void> {
+                }
             }
-        
-            func revert(on database: Database) -> EventLoopFuture<Void> {
+            """
+        } else {
+            return """
+            import Fluent
+                
+            final class M\(timestamp)_\(name): Migration {
+                func prepare(on database: Database) -> EventLoopFuture<Void> {
+                }
+            
+                func revert(on database: Database) -> EventLoopFuture<Void> {
+                }
             }
+            """
         }
-        """
     }
 
     static func initialMigrationGenerator(name: String, fields: [String], skipTimestamps: Bool, timestamp: String, autoMigrate: Bool = false) -> String {
@@ -168,7 +188,7 @@ final class MigrationGenerator {
         """
         
         migration += """
-            func revert(on database: Database) -> EventLoopFuture<Void> {
+            \(autoMigrate ? "override " : "")func revert(on database: Database) -> EventLoopFuture<Void> {
                 database.schema(\(model).schema)
 
         """

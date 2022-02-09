@@ -4,21 +4,21 @@
 import PackageDescription
 
 let package = Package(
-    name: "rapid-boil",
+    name: "simmer",
     products: [
-        .executable(name: "rapid-boil", targets: ["rapid-boil"])
+        .executable(name: "simmer", targets: ["simmer"])
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser", from: "0.0.1")
     ],
     targets: [
         .executableTarget(
-            name: "rapid-boil",
+            name: "simmer",
             dependencies: [
               .product(name: "ArgumentParser", package: "swift-argument-parser")
             ]),
         .testTarget(
-            name: "rapid-boil-tests",
-            dependencies: ["rapid-boil"]),
+            name: "simmer-tests",
+            dependencies: ["simmer"]),
     ]
 )

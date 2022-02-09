@@ -1,5 +1,5 @@
 import XCTest
-@testable import rapid_boil
+@testable import simmer
 
 final class ControllerTests: XCTestCase {
 }

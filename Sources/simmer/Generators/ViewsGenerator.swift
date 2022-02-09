@@ -90,7 +90,7 @@ final class ViewsGenerator {
         for field in fields {
             let fieldname = field.split(separator: ":")[0]
             div += """
-                        <p>model.\(fieldname)</p>
+                        <p>#(model.\(fieldname))</p>
 
             """
         }

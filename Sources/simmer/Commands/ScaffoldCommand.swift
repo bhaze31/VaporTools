@@ -7,9 +7,9 @@ final class ScaffoldCommand: ParsableCommand {
     public static let configuration = CommandConfiguration(
         abstract: "Generate necessary resources for a new Model in a Vapor application",
         discussion: """
-        rapid-boil is an opinionated library, and as such it makes certain assumptions about the configuration of your application. Below is a list of basic terms in relation to the opinions of the tools. For a more complete explanation, run `rapid-boil manual`.
+        simmer is an opinionated library, and as such it makes certain assumptions about the configuration of your application. Below is a list of basic terms in relation to the opinions of the tools. For a more complete explanation, run `simmer manual`.
         
-        NOTE: If you have not run `rapid-boil initiate`, you should be passing the --basic flag. Otherwise, your code will not compile.
+        NOTE: If you have not run `simmer initiate`, you should be passing the --basic flag. Otherwise, your code will not compile.
         
         Model: The resource that represents a table in your database
         Migration: For this command, the initial migration related to the created Model

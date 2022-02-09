@@ -34,7 +34,7 @@ extension String {
         return self + "s"
     }
 
-    func toModelCase(addSpace: Bool = true) -> String {
+    func toModelCase(addSpace: Bool = false) -> String {
         let train = self.toTrainCase()
         var shouldUppercase = false
         return train.unicodeScalars.reduce("") {

@@ -1,5 +1,5 @@
 import XCTest
-@testable import rapid_boil
+@testable import simmer
 
 final class MigrationTests: XCTestCase {
     func testInitialMigration() {
@@ -194,6 +194,40 @@ final class MigrationTests: XCTestCase {
             }
 
             func revert(on database: Database) -> EventLoopFuture<Void> {
+            }
+        }
+        """)
+    }
+    
+    func testEmptyMigration() {
+        var migration = MigrationGenerator.emptyMigration(name: "TestName", timestamp: "test_stamp")
+        
+        XCTAssertEqual(migration, """
+        import Fluent
+            
+        final class Mtest_stamp_TestName: Migration {
+            func prepare(on database: Database) -> EventLoopFuture<Void> {
+            }
+
+            func revert(on database: Database) -> EventLoopFuture<Void> {
+            }
+        }
+        """)
+        
+        migration = MigrationGenerator.emptyMigration(name: "TestName", timestamp: "test_stamp", autoMigrate: true)
+
+        XCTAssertEqual(migration, """
+        import Fluent
+        import AutoMigrator
+
+        final class Mtest_stamp_TestName: AutoMigration {
+            override var name: String { String(reflecting: self) }
+            override var defaultName: String { String(reflecting: self) }
+
+            override func prepare(on database: Database) -> EventLoopFuture<Void> {
+            }
+
+            override func revert(on database: Database) -> EventLoopFuture<Void> {
             }
         }
         """)

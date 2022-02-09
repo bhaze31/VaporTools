@@ -7,33 +7,33 @@ final class FileHandler {
     
     static func createViewFileWithContents(_ contents: String, model: String, fileName: String, displayIfConflicting: Bool = false) {
         createFolderUnlessExists(PathConstants.ViewsPath.rawValue)
-        createFolderUnlessExists(PathConstants.ViewsPath.rawValue + "/\(model.capitalized)")
+        createFolderUnlessExists(PathConstants.ViewsPath.rawValue + "/\(model.toModelCase())")
 
         var path = PathConstants.ViewsPath.rawValue
-        
-        path += "/\(model.capitalized)/\(fileName).leaf"
-        
+
+        path += "/\(model.toModelCase())/\(fileName).leaf"
+
         if FileManager.default.fileExists(atPath: path) {
             print("File \(fileName) already exists")
-            
+
             if displayIfConflicting {
                 print("\nWould-be contents of \(fileName)")
                 print(contents)
                 print("\n\n")
             }
-            
+
             return
         }
         
         print("Creating file at path: \(path)")
-        
+
         FileManager.default.createFile(
             atPath: path,
             contents: contents.data(using: .utf8),
             attributes: [:]
         )
     }
-    
+
     static func createMainView() {
         createFolderUnlessExists(PathConstants.ViewsPath.rawValue)
 
@@ -75,6 +75,20 @@ final class FileHandler {
             attributes: [:]
         )
     }
+    
+    static func changeFileWithContents(_ contents: String, fileName: String, path _path: PathConstants) {
+        createFolderUnlessExists(_path.rawValue)
+    
+        let path = _path.rawValue
+    
+        print("Updating file at path: \(path)/\(fileName)")
+    
+        FileManager.default.createFile(
+            atPath: "\(path)/\(fileName)",
+            contents: contents.data(using: .utf8),
+            attributes: [:]
+        )
+    }
 
     static func createFolderUnlessExists(_ folderName: String) {
         var directory: ObjCBool = true
@@ -86,6 +100,38 @@ final class FileHandler {
                 print(e)
                 print("Error creating directory")
             }
+        }
+    }
+    
+    static func addRouteCollectionToRouter(controllerName: String) {
+        let path = "\(PathConstants.ApplicationPath.rawValue)/routes.swift"
+
+        if let data = FileManager.default.contents(atPath: path), let file = String(data: data, encoding: .utf8) {
+            var fileData = [String]()
+
+            let rows = file.components(separatedBy: "\n")
+
+            var collectionsHit = false
+
+            for (index, row) in rows.enumerated() {
+                if row.contains("try app.register(") {
+                    collectionsHit = true
+                    fileData.append(row)
+                    continue
+                }
+
+                if row.contains("}") && collectionsHit {
+                    fileData.append("    try app.register(\(controllerName))")
+                    collectionsHit = false
+                } else if row.contains("}") && (rows.count - index) < 5 {
+                    fileData.append("    try app.register(\(controllerName))")
+                    collectionsHit = false
+                }
+
+                fileData.append(row)
+            }
+
+            FileManager.default.createFile(atPath: path, contents: fileData.joined(separator: "\n").data(using: .utf8), attributes: [:])
         }
     }
     
@@ -118,7 +164,7 @@ final class FileHandler {
                             optional = true
                         }
                         
-                        fileData.append("\t@Field(key: FieldKeys.\(fieldData[0])) var \(fieldData[0]): \(fieldData[1].capitalized)\(optional ? "?" : "")")
+                        fileData.append("\t@Field(key: FieldKeys.\(fieldData[0])) var \(fieldData[0]): \(fieldData[1].toModelCase())\(optional ? "?" : "")")
                     }
                 }
                 

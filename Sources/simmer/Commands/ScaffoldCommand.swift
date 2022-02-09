@@ -7,9 +7,9 @@ final class ScaffoldCommand: ParsableCommand {
     public static let configuration = CommandConfiguration(
         abstract: "Generate necessary resources for a new Model in a Vapor application",
         discussion: """
-        rapid-boil is an opinionated library, and as such it makes certain assumptions about the configuration of your application. Below is a list of basic terms in relation to the opinions of the tools. For a more complete explanation, run `rapid-boil manual`.
+        simmer is an opinionated library, and as such it makes certain assumptions about the configuration of your application. Below is a list of basic terms in relation to the opinions of the tools. For a more complete explanation, run `simmer manual`.
         
-        NOTE: If you have not run `rapid-boil initiate`, you should be passing the --basic flag. Otherwise, your code will not compile.
+        NOTE: If you have not run `simmer initiate`, you should be passing the --basic flag. Otherwise, your code will not compile.
         
         Model: The resource that represents a table in your database
         Migration: For this command, the initial migration related to the created Model
@@ -53,8 +53,10 @@ final class ScaffoldCommand: ParsableCommand {
 
         let model = ModelGenerator.generateModel(name: name, fields: fields, hasTimestamps: !skipTimestamps)
         
+        let controller = ControllerGenerator.generateModelController(for: name)
+        
         let migration = MigrationGenerator.initialMigrationGenerator(
-            name: name.capitalized,
+            name: name.toModelCase(),
             fields: fields,
             skipTimestamps: skipTimestamps,
             timestamp: timestamp,
@@ -62,7 +64,7 @@ final class ScaffoldCommand: ParsableCommand {
         )
         
         let indexView = ViewsGenerator.generateIndexView(
-            for: name,
+            for: name.toModelCase(),
             fields: fields,
             hasTimestamps: !skipTimestamps
         )
@@ -88,8 +90,14 @@ final class ScaffoldCommand: ParsableCommand {
 
         FileHandler.createFileWithContents(
             model,
-            fileName: "\(name.capitalized).swift",
+            fileName: "\(name.toModelCase()).swift",
             path: .ModelPath
+        )
+        
+        FileHandler.createFileWithContents(
+            controller,
+            fileName: "\(name.toModelCase())Controller.swift",
+            path: .ControllerPath
         )
         
         FileHandler.createFileWithContents(
@@ -97,5 +105,7 @@ final class ScaffoldCommand: ParsableCommand {
             fileName: "\(timestamp)_\(name).swift",
             path: .MigrationPath
         )
+        
+        
     }
 }

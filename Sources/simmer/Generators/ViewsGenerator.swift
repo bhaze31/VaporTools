@@ -17,7 +17,7 @@ final class ViewsGenerator {
         for field in fields {
             let fieldName = field.split(separator: ":")[0]
             header += """
-                            <th>\(fieldName.capitalized)</th>
+                            <th>\(String(fieldName).toModelCase(addSpace: true))</th>
 
             """
         }
@@ -64,7 +64,7 @@ final class ViewsGenerator {
         return """
         #extend(\"main\"):
             #export(\"title\"):
-                \(model.capitalized)
+                \(model.toModelCase())
             #endexport
         
             #export(\"body\"):
@@ -90,7 +90,7 @@ final class ViewsGenerator {
         for field in fields {
             let fieldname = field.split(separator: ":")[0]
             div += """
-                        <p>model.\(fieldname)</p>
+                        <p>#(model.\(fieldname))</p>
 
             """
         }
@@ -107,7 +107,7 @@ final class ViewsGenerator {
         return """
         extend(\"main\"):
             #export(\"title\"):
-                \(model.capitalized) - Show
+                \(model.toModelCase()) - Show
             #endexport
         
             #export(\"body\"):

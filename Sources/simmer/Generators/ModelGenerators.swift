@@ -2,11 +2,7 @@ import Foundation
 
 final class ModelGenerator {
     public static func generateModel(name: String, fields: [String], hasTimestamps: Bool = true) -> String {
-        if FileHandler.fileExists(fileName: "\(name.capitalized).swift", path: .ModelPath) {
-            fatalError("Model \(name.capitalized) already exists at path")
-        }
-        
-        print("Generating model \(name.capitalized)")
+        print("Generating model \(name.toModelCase())")
         
         let fs = extractFieldsData(fields: fields)
 
@@ -21,7 +17,7 @@ final class ModelGenerator {
         import Vapor
         import Fluent
         
-        final class \(name.capitalized): ControllerModel {
+        final class \(name.toModelCase()): ControllerModel {
             static let schema = \"\(name.lowercased())\"
         
             struct FieldKeys {

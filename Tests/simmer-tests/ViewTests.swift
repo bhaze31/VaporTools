@@ -39,8 +39,8 @@ final class ViewTests: XCTestCase {
 
             #export("body"):
                 <div>
-                    <p>model.name</p>
-                    <p>model.email</p>
+                    <p>#(model.name)</p>
+                    <p>#(model.email)</p>
                 </div>
             #endexport
         #endextend
@@ -65,7 +65,7 @@ final class ViewTests: XCTestCase {
             #endexport
 
             #export(\"body\"):
-                <h1>user</h1>
+                <h1>User</h1>
 
                 <table>
                     <tr>

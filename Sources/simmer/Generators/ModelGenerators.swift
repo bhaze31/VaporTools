@@ -17,7 +17,7 @@ final class ModelGenerator {
         import Vapor
         import Fluent
         
-        final class \(name.toModelCase()): ControllerModel {
+        final class \(name.toModelCase()): ControllerModelProtocol {
             static let schema = \"\(name.lowercased())\"
         
             struct FieldKeys {
@@ -29,6 +29,12 @@ final class ModelGenerator {
             init() {}
         
             \(initializer)
+        
+            func create(for request: Request) {
+            }
+        
+            func update(for request: Request) {
+            }
         }
         """
         

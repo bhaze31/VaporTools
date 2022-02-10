@@ -86,13 +86,13 @@ final class MigrationGenerator {
         return migration
     }
     
-    private static func migrationHeader(name: String, model: String, timestamp: String, autoMigrate: Bool = false) -> String {
+    private static func migrationHeader(name: String, model: String, timestamp: String, autoMigrate: Bool = false, migrationType: MigrationType = .Unknown) -> String {
         if autoMigrate {
             return """
             import Fluent
             import AutoMigrator
             
-            final class M\(timestamp)_\(name): AutoMigration {
+            final class M\(timestamp)_\(migrationType == .Create ? "Create" : "")\(name): AutoMigration {
                 override var name: String { String(reflecting: self) }
                 override var defaultName: String { String(reflecting: self) }
             
@@ -145,7 +145,7 @@ final class MigrationGenerator {
     }
 
     static func initialMigrationGenerator(name: String, fields: [String], skipTimestamps: Bool, timestamp: String, autoMigrate: Bool = false) -> String {
-        var migration = migrationHeader(name: name, model: name, timestamp: timestamp, autoMigrate: autoMigrate)
+        var migration = migrationHeader(name: name, model: name, timestamp: timestamp, autoMigrate: autoMigrate, migrationType: .Create)
 
         migration += """
                     .id()\n

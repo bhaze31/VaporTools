@@ -102,7 +102,7 @@ final class ScaffoldCommand: ParsableCommand {
         
         FileHandler.createFileWithContents(
             migration,
-            fileName: "\(timestamp)_\(name).swift",
+            fileName: "\(timestamp)_Create\(name).swift",
             path: .MigrationPath
         )
         

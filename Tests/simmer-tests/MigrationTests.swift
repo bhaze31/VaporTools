@@ -58,7 +58,7 @@ final class MigrationTests: XCTestCase {
         import Fluent
         import AutoMigrator
 
-        final class Mtest_stamp_User: AutoMigration {
+        final class Mtest_stamp_CreateUser: AutoMigration {
             override var name: String { String(reflecting: self) }
             override var defaultName: String { String(reflecting: self) }
 

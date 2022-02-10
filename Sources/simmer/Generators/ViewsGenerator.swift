@@ -64,11 +64,11 @@ final class ViewsGenerator {
         return """
         #extend(\"main\"):
             #export(\"title\"):
-                \(model.toModelCase())
+                \(model.toModelCase(addSpace: true))
             #endexport
         
             #export(\"body\"):
-                <h1>\(model)</h1>
+                <h1>\(model.toModelCase(addSpace: true))</h1>
         
                 <table>
                     \(header)
@@ -107,7 +107,7 @@ final class ViewsGenerator {
         return """
         extend(\"main\"):
             #export(\"title\"):
-                \(model.toModelCase()) - Show
+                \(model.toModelCase(addSpace: true)) - Show
             #endexport
         
             #export(\"body\"):

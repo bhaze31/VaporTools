@@ -1,7 +1,7 @@
 import ArgumentParser
 import Foundation
 
-struct RapidBoil: ParsableCommand {
+struct Simmer: ParsableCommand {
     static let configuration = CommandConfiguration(
         abstract: "A Swift command line tool to manage Vapor applications",
         discussion: """
@@ -19,4 +19,4 @@ struct RapidBoil: ParsableCommand {
     init() {}
 }
 
-RapidBoil.main()
+Simmer.main()

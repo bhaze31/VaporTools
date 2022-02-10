@@ -9,7 +9,7 @@ final class ScaffoldTests: XCTestCase {
         import Vapor
         import Fluent
 
-        final class User: ControllerModel {
+        final class User: ControllerModelProtocol {
             static let schema = "user"
 
             struct FieldKeys {
@@ -37,6 +37,12 @@ final class ScaffoldTests: XCTestCase {
                 self.email = email
                 self.username = username
                 self.password = password
+            }
+        
+            func create(for request: Request) {
+            }
+        
+            func update(for request: Request) {
             }
         }
         """)

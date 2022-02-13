@@ -72,10 +72,12 @@ final class ViewsGenerator {
         
                 <table>
                     \(header)
-                    #for(item in items) {
+                    #for(item in items):
                         \(rows)
-                    }
+                    #endfor
                 </table>
+        
+                <a href=\"/\(model.lowercased().pluralize())\">Create \(model.toModelCase(addSpace: true))</a>
             #endexport
         #endextend
         """

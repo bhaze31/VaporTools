@@ -2,6 +2,8 @@ import Foundation
 
 #if DEBUG
 enum PathConstants: String {
+    case RootPath = "./"
+    
     case BasePath = "Source"
 
     case ApplicationPath = "Source/App"
@@ -22,6 +24,8 @@ enum PathConstants: String {
 }
 #else
 enum PathConstants: String {
+    case RootPath = "./"
+
     case BasePath = "Sources"
 
     case ApplicationPath = "Sources/App"

@@ -42,6 +42,8 @@ final class ViewTests: XCTestCase {
                     <p>#(model.name)</p>
                     <p>#(model.email)</p>
                 </div>
+        
+                <a href="/users/#(model.id)/edit">Edit User</a>
             #endexport
         #endextend
         """)
@@ -89,4 +91,10 @@ final class ViewTests: XCTestCase {
         #endextend
         """)
     }
+    
+//    func testEditView() {
+//        let fields = [
+//            "name:email"
+//        ]
+//    }
 }

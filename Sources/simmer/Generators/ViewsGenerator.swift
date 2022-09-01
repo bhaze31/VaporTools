@@ -57,6 +57,19 @@ final class ViewsGenerator {
 
         """
     }
+    
+    private static func getInputForRow(model: String, fields: [Field]) -> String {
+        var row = """
+        <form action="/\(model.lowercased().pluralize())", method="POST">
+        """
+        
+        for field in fields {
+            
+        }
+        return row + """
+        </form>
+        """
+    }
 
     static func generateIndexView(for model: String, fields: [String], hasTimestamps: Bool = true) -> String {
         let header = ViewsGenerator.getHeaderRow(fields: fields)
@@ -78,6 +91,21 @@ final class ViewsGenerator {
                 </table>
         
                 <a href=\"/\(model.lowercased().pluralize())\">Create \(model.toModelCase(addSpace: true))</a>
+            #endexport
+        #endextend
+        """
+    }
+    
+    static func getEditView(model: String, fields: [String]) -> String {
+        #warning("Move edit view to be create or edit depending on model")
+        return """
+        #extend("main"):
+            #export("title"):
+                \(model.toModelCase(addSpace: true)) - Edit
+            #endexport
+        
+            #export("body"):
+                <h1>Edit \(model.toModelCase(addSpace: true))</h1>
             #endexport
         #endextend
         """
@@ -107,13 +135,15 @@ final class ViewsGenerator {
     static func generateShowView(model: String, fields: [String]) -> String {
         let fields = ViewsGenerator.getFieldsForShow(fields: fields)
         return """
-        extend(\"main\"):
-            #export(\"title\"):
+        extend("main"):
+            #export("title"):
                 \(model.toModelCase(addSpace: true)) - Show
             #endexport
         
-            #export(\"body\"):
+            #export("body"):
                 \(fields)
+        
+                <a href="/\(model.lowercased().pluralize())/#(model.id)/edit">Edit \(model.toModelCase(addSpace: true))</a>
             #endexport
         #endextend
         """

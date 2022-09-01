@@ -9,7 +9,7 @@ let package = Package(
         .executable(name: "simmer", targets: ["simmer"])
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-argument-parser", from: "0.0.1")
+        .package(url: "https://github.com/apple/swift-argument-parser", from: "1.1.4"),
     ],
     targets: [
         .executableTarget(

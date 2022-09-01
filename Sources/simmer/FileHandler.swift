@@ -90,15 +90,27 @@ final class FileHandler {
         )
     }
 
-    static func createFolderUnlessExists(_ folderName: String) {
+    static func createFolderUnlessExists(_ folderName: String, isFatal: Bool = false) {
+        PrettyLogger.info("Attempting to generate directory \(folderName)")
         var directory: ObjCBool = true
         if !FileManager.default.fileExists(atPath: folderName, isDirectory: &directory) {
             do {
+                PrettyLogger.generate("Folder does not exist, generating")
                 let folder = URL(fileURLWithPath: folderName, isDirectory: true)
                 try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true, attributes: [:])
             } catch let e {
-                print(e)
-                print("Error creating directory")
+                if isFatal {
+                    fatalError("Error creating directory \(folderName)")
+                } else {
+                    print("Error creating directory")
+                }
+                
+            }
+        } else {
+            PrettyLogger.error("Error generating folder, folder '\(folderName)' exists.")
+            if isFatal {
+                PrettyLogger.error("Cannot continue without generating folder, exiting.")
+                exit(0)
             }
         }
     }

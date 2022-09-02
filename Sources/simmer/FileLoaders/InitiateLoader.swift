@@ -103,17 +103,16 @@ final class InitiateLoader {
     }
     
     static func loadErsatzConfiguration(_ name: String, packageData: InitialPackageData) {
+        var ersatzConfig = FileHandler.fetchDefaultFile("ErsatzConfiguration")
+        ersatzConfig = ersatzConfig.replacingOccurrences(of: "::name::", with: name)
+        ersatzConfig = ersatzConfig.replacingOccurrences(of: "::autoMigrate::", with: packageData.autoMigrator.description)
+        
+        
         FileHandler.createFileWithContents(
-            """
-            {
-                "appName": "\(name)",
-                "autoMigrate": \(packageData.autoMigrator),
-            }
-            """,
+            ersatzConfig,
             fileName: "ersatz.json",
             path: .RootPath
         )
-        
     }
     
     static func loadAppConfiguration(_ name: String) {

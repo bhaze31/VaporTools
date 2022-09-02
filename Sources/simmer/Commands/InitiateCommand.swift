@@ -84,9 +84,8 @@ final class InitiateCommand: ParsableCommand {
         FileManager.default.changeCurrentDirectoryPath("./\(name)")
         
         #warning("Generate full vapor application here")
-        #warning("Generate json file to handle defaults (authentication, database, leaf, int vs uuid, etc from default file")
         
-        let packageData = SwiftPackageLoader.Packages(
+        let packageData = InitialPackageData(
             postgres: usePostgres,
             mysql: useMySQL,
             mongodb: useMongoDB,

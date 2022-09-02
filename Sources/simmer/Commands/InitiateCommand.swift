@@ -76,37 +76,15 @@ final class InitiateCommand: ParsableCommand {
     @Flag(name: [.customShort("r"), .customLong("redis")], help: "Add Redis configuration.")
     private var useRedis: Bool = false
 
-    // @Flag(name: .shortAndLong, help: "Add authentication middleware")
-    // private var middlewareAuthenticator = false
-
-    // @Flag(name: .shortAndLong, help: "Skip loading a Redis configuration.")
-    // private var redisSkip = false
-    
-    // @Flag(name: .shortAndLong, help: "Skip creating Environment extensions.")
-    // private var environmentSkip = false
-    
-    // @Flag(name: .shortAndLong, help: "Don't include AutoMigrator in configuration.")
-    // private var autoMigrationSkip = false
-    
-    // @Flag(name: .shortAndLong, help: "Don't load JWT signing keys.")
-    // private var signingSkip = false
-
     func run() throws {
         PrettyLogger.generate("Initiating Vapor application \(name)")
         
         FileHandler.createFolderUnlessExists(name, isFatal: true)
+        
         FileManager.default.changeCurrentDirectoryPath("./\(name)")
-
-        FileHandler.createFileWithContents(
-            """
-            {
-                "appName": "\(name)",
-                "autoMigrate": \(useAutoMigrator ? "true" : "false"),
-            }
-            """,
-            fileName: "ersatz.json",
-            path: .RootPath
-        )
+        
+        #warning("Generate full vapor application here")
+        #warning("Generate json file to handle defaults (authentication, database, leaf, int vs uuid, etc from default file")
         
         let packageData = SwiftPackageLoader.Packages(
             postgres: usePostgres,
@@ -119,83 +97,6 @@ final class InitiateCommand: ParsableCommand {
             autoMigrator: useAutoMigrator
         )
 
-        SwiftPackageLoader.load(name: name, packageData: packageData)
-        
-        #warning("Generate full vapor application here")
-        #warning("Generate json file to handle defaults (authentication, database, leaf, int vs uuid, etc")
-        
-//         let config = ConfigurationGenerator.generateRedisConfiguration()
-//         
-//         FileHandler.changeFileWithContents(
-//             config,
-//             fileName: "configure.swift",
-//             path: .ApplicationPath
-//         )
-// 
-//         let controllerProtocol = ControllerGenerator.generateControllerProtocol()
-//         
-//         FileHandler.createFileWithContents(
-//             controllerProtocol,
-//             fileName: "ControllerProtocol.swift",
-//             path: .ProtocolPath
-//         )
-//         
-//         let modelProtocol = ControllerGenerator.generateModelProtocol()
-//         
-//         FileHandler.createFileWithContents(
-//             modelProtocol,
-//             fileName: "ControllerModelProtocol.swift",
-//             path: .ProtocolPath
-//         )
-//         
-//         if middlewareAuthenticator {
-//             let jwtMiddleware = AuthenticationGenerator.generateJWTMiddleware()
-//             let jwtToken = AuthenticationGenerator.generateToken()
-//             let webMiddleware = AuthenticationGenerator.generateWebMiddleware()
-// 
-//             if jwt {
-//                 FileHandler.createFileWithContents(
-//                     jwtMiddleware,
-//                     fileName: "APIMiddleware.swift",
-//                     path: .MiddlewarePath,
-//                     displayIfConflicting: true
-//                 )
-//                 
-//                 FileHandler.createFileWithContents(
-//                     jwtToken,
-//                     fileName: "Token.swift",
-//                     path: .ModelPath,
-//                     displayIfConflicting: true
-//                 )
-//             } else if web {
-//                 FileHandler.createFileWithContents(
-//                     webMiddleware,
-//                     fileName: "WebMiddleware.swift",
-//                     path: .MiddlewarePath,
-//                     displayIfConflicting: true
-//                 )
-//             } else {
-//                 FileHandler.createFileWithContents(
-//                     jwtMiddleware,
-//                     fileName: "APIMiddleware.swift",
-//                     path: .MiddlewarePath,
-//                     displayIfConflicting: true
-//                 )
-//                 
-//                 FileHandler.createFileWithContents(
-//                     jwtToken,
-//                     fileName: "Token.swift",
-//                     path: .ModelPath,
-//                     displayIfConflicting: true
-//                 )
-//                 
-//                 FileHandler.createFileWithContents(
-//                     webMiddleware,
-//                     fileName: "WebMiddleware.swift",
-//                     path: .MiddlewarePath,
-//                     displayIfConflicting: true
-//                 )
-//             }
-//         }
+        InitiateLoader.loadAll(for: name, packageData: packageData)
     }
 }

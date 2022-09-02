@@ -1,0 +1,56 @@
+::imports::
+
+// configures your application
+public func configure(_ app: Application) throws {
+    app.http.server.configuration.port = 3162
+        
+    // Leaf Views + Tags
+    ::leaf::
+    app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
+    
+    app.views.use(.leaf)
+    
+    // Database configurations
+    ::fluent:":"
+    if var config = PostgresConfiguration(url: Environment.databaseURL),
+       ["development", "production"].contains(app.environment.name) {
+        if app.environment.isRelease {
+            config.tlsConfiguration = TLSConfiguration.makeClientConfiguration()
+        }
+        
+        app.databases.use(.postgres(configuration: config), as: .psql)
+    } else {
+        if let config = PostgresConfiguration(url: Environment.databaseURL) {
+            app.databases.use(.postgres(configuration: config), as: .psql)
+        }
+    }
+
+    // Session + Token information
+    ::sessions::
+    app.sessions.use(.fluent)
+    app.middleware.use(app.sessions.middleware)
+    
+    ::jwt::
+    try app.jwt.signers.use(.rs256(key: .private(pem: Environment.privateKey)), kid: "private")
+    try app.jwt.signers.use(.rs256(key: .public(pem: Environment.publicKey)), kid: "public")
+    
+    
+    // Queues information
+    ::redis::
+    try app.queues.use(.redis(url: Environment.redisURL))
+    
+    app.queues.add(TweetJob())
+    
+    // Migrations
+    ::migrations::
+    app.loadAutoMigrations(migrationsPath: "Sources/GrizzlyProductions/Migrations", namespace: "GrizzlyProductions", fatalErrorOnInvalidClass: true)
+    
+    if !app.environment.isRelease {
+        let _ = app.autoMigrate()
+    }
+    
+    // Routes information
+    try routes(app)
+    
+}
+

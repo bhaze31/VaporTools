@@ -5,6 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "simmer",
+    platforms: [.macOS(.v12)],
     products: [
         .executable(name: "simmer", targets: ["simmer"])
     ],

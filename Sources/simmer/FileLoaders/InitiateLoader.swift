@@ -1,29 +1,42 @@
 //
-//  File.swift
+//  InitiateLoader.swift
 //  
 //
-//  Created by Brian Hasenstab on 9/1/22.
+//  Created by Brian Hasenstab on 9/2/22.
 //
 
 import Foundation
 
-final class SwiftPackageLoader {
-    struct Packages {
-        var postgres = false
-        var mysql = false
-        var mongodb = false
-        var sqlite = false
-        
-        var redis = false
-        
-        var leaf = false
-        
-        var jwt = false
-        
-        var autoMigrator = true
-        
+struct InitialPackageData {
+    var postgres = false
+    var mysql = false
+    var mongodb = false
+    var sqlite = false
+    
+    var redis = false
+    
+    var leaf = false
+    
+    var jwt = false
+    
+    var autoMigrator = true
+}
+
+final class InitiateLoader {
+    static func loadAll(for name: String, packageData: InitialPackageData) {
+        loadApp(name)
+        loadPackageSwift(name, packageData: packageData)
+        loadAppConfiguration(name)
+        loadErsatzConfiguration(name, packageData: packageData)
     }
-    static func load(name: String, packageData: Packages = Packages()) {
+    static func loadApp(_ name: String) {
+        var defaultAppState = FileHandler.fetchDefaultFile("DefaultApp")
+        defaultAppState = defaultAppState.replacingOccurrences(of: "::name::", with: name)
+        
+        FileHandler.createFileWithContents(defaultAppState, fileName: "main.swift", path: .RunPath)
+    }
+    
+    static func loadPackageSwift(_ name: String, packageData: InitialPackageData) {
         var packageManager = FileHandler.fetchDefaultFile("Package")
         packageManager = packageManager.replacingOccurrences(of: "::name::", with: name)
         var packages = [
@@ -75,13 +88,35 @@ final class SwiftPackageLoader {
             dependencies.append("\t\t\t\t.product(name: \"AutoMigrator\", package: \"AutoMigrator\"),")
         }
 
-        
-        
-        
+        if packageData.redis {
+            packages.append("\t\t.package(url: \"https://github.com/vapor/redis.git\", from: \"4.0.0\"),")
+            dependencies.append("\t\t\t\t.product(name: \"Redis\", package: \"redis\"),")
+            
+            packages.append("\t\t.package(url: \"https://github.com/vapor/queues-redis-driver.git\", from: \"1.0.0\"),")
+            dependencies.append("\t\t\t\t.product(name: \"QueuesRedisDriver\", package: \"queues-redis-driver\"),")
+        }
         
         packageManager = packageManager.replacingOccurrences(of: "::packages::", with: packages.joined(separator: "\n"))
         packageManager = packageManager.replacingOccurrences(of: "::dependencies::", with: dependencies.joined(separator: "\n"))
-        print(packageManager)
+
         FileHandler.createFileWithContents(packageManager, fileName: "Package.swift", path: .RootPath)
+    }
+    
+    static func loadErsatzConfiguration(_ name: String, packageData: InitialPackageData) {
+        FileHandler.createFileWithContents(
+            """
+            {
+                "appName": "\(name)",
+                "autoMigrate": \(packageData.autoMigrator),
+            }
+            """,
+            fileName: "ersatz.json",
+            path: .RootPath
+        )
+        
+    }
+    
+    static func loadAppConfiguration(_ name: String) {
+        
     }
 }

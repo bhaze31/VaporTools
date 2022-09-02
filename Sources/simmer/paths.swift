@@ -6,6 +6,8 @@ enum PathConstants: String {
     
     case BasePath = "Source"
 
+    case RunPath = "Source/Run"
+    
     case ApplicationPath = "Source/App"
 
     case ModelPath = "Source/App/Models"
@@ -27,7 +29,9 @@ enum PathConstants: String {
     case RootPath = "./"
 
     case BasePath = "Sources"
-
+    
+    case RunPath = "Sources/Run"
+    
     case ApplicationPath = "Sources/App"
     
     case ModelPath = "Sources/App/Models"

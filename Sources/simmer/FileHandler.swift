@@ -77,8 +77,8 @@ final class FileHandler {
     }
     
     static func fetchDefaultFile(_ file: String) -> String {
-        print(Bundle.module.url(forResource: "DefaultFiles/Package", withExtension: ".txt"))
-        guard let url = Bundle.module.url(forResource: "DefaultFiles/Package", withExtension: ".txt"), let contents = try? String(contentsOfFile: url.path) else {
+        print(Bundle.module.url(forResource: "DefaultFiles/\(file)", withExtension: ".txt"))
+        guard let url = Bundle.module.url(forResource: "DefaultFiles/\(file)", withExtension: ".txt"), let contents = try? String(contentsOfFile: url.path) else {
             PrettyLogger.error("Cannot load contents of file \(file), this is a problem with Simmer, please report it at: https://github.com/bhaze31/simmer")
             exit(0)
         }

@@ -46,21 +46,39 @@ final class InitiateCommand: ParsableCommand {
         """
     )
 
-    @Option(name: [.customShort("n"), .customLong("app-name")], help: "Name of application to generate")
+    @Option(name: [.customShort("a"), .customLong("app")], help: "Name of application to generate.")
     private var name: String = "App"
 
+    @Flag(name: [.customShort("m"), .customLong("auto-migrator")], help: "Use auto-migrator by default.")
+    private var useAutoMigrator: Bool = false
+    
     @Flag(help: "Display contents of conflicting files")
     private var showContents = false
+    
+    @Flag(name: .customLong("postgres"), help: "Add PostgreSQL")
+    private var usePostgres: Bool = false
+    
+    @Flag(name: .customLong("sqlite"), help: "Add SQLite")
+    private var useSQLite: Bool = false
+    
+    @Flag(name: .customLong("mysql"), help: "Add MySQL")
+    private var useMySQL: Bool = false
+    
+    @Flag(name: .customLong("mongodb"), help: "Add MongoDB")
+    private var useMongoDB: Bool = false
+
+    @Flag(name: .customLong("jwt"), help: "Add JWT support")
+    private var useJWT: Bool = false
+
+    @Flag(name: [.customShort("l"), .customLong("leaf")], help: "Add Leaf for templating.")
+    private var useLeaf: Bool = false
+    
+    @Flag(name: [.customShort("r"), .customLong("redis")], help: "Add Redis configuration.")
+    private var useRedis: Bool = false
 
     // @Flag(name: .shortAndLong, help: "Add authentication middleware")
     // private var middlewareAuthenticator = false
-    // 
-    // @Flag(name: .shortAndLong, help: "Only use JWT authentication middleware with authenticator flag.")
-    // private var jwt = false
-    
-    // @Flag(name: .shortAndLong, help: "Only use web session middleware with authenticator flag.")
-    // private var web = false
-    
+
     // @Flag(name: .shortAndLong, help: "Skip loading a Redis configuration.")
     // private var redisSkip = false
     
@@ -78,19 +96,31 @@ final class InitiateCommand: ParsableCommand {
         
         FileHandler.createFolderUnlessExists(name, isFatal: true)
         FileManager.default.changeCurrentDirectoryPath("./\(name)")
-        
+
         FileHandler.createFileWithContents(
             """
             {
-                "appname": "\(name)"
+                "appName": "\(name)",
+                "autoMigrate": \(useAutoMigrator ? "true" : "false"),
             }
             """,
             fileName: "ersatz.json",
-            path: .BasePath
+            path: .RootPath
+        )
+        
+        let packageData = SwiftPackageLoader.Packages(
+            postgres: usePostgres,
+            mysql: useMySQL,
+            mongodb: useMongoDB,
+            sqlite: useSQLite,
+            redis: useRedis,
+            leaf: useLeaf,
+            jwt: useJWT,
+            autoMigrator: useAutoMigrator
         )
 
-        FileHandler.createFileWithContents("Test file", fileName: "Package.swift", path: .RootPath)
-
+        SwiftPackageLoader.load(name: name, packageData: packageData)
+        
         #warning("Generate full vapor application here")
         #warning("Generate json file to handle defaults (authentication, database, leaf, int vs uuid, etc")
         

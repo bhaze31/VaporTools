@@ -16,7 +16,8 @@ let package = Package(
             name: "simmer",
             dependencies: [
               .product(name: "ArgumentParser", package: "swift-argument-parser")
-            ]),
+            ],
+            resources: [.copy("DefaultFiles")]),
         .testTarget(
             name: "simmer-tests",
             dependencies: ["simmer"]),

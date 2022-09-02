@@ -67,13 +67,23 @@ final class FileHandler {
             return
         }
 
-        print("Creating file at path: \(path)/\(fileName)")
-
+        print("Creating file at path: \(path == "./" ? "." : path)/\(fileName)")
+        
         FileManager.default.createFile(
             atPath: "\(path)/\(fileName)",
             contents: contents.data(using: .utf8),
             attributes: [:]
         )
+    }
+    
+    static func fetchDefaultFile(_ file: String) -> String {
+        print(Bundle.module.url(forResource: "DefaultFiles/Package", withExtension: ".txt"))
+        guard let url = Bundle.module.url(forResource: "DefaultFiles/Package", withExtension: ".txt"), let contents = try? String(contentsOfFile: url.path) else {
+            PrettyLogger.error("Cannot load contents of file \(file), this is a problem with Simmer, please report it at: https://github.com/bhaze31/simmer")
+            exit(0)
+        }
+        
+        return contents
     }
     
     static func changeFileWithContents(_ contents: String, fileName: String, path _path: PathConstants) {
@@ -91,14 +101,21 @@ final class FileHandler {
     }
 
     static func createFolderUnlessExists(_ folderName: String, isFatal: Bool = false) {
+        // We are just generating a file in the current directory, this should never be called
+        if folderName == "./" {
+            PrettyLogger.info("Attempting to add a folder that is just the current directory, bailing.")
+            return
+        }
+        
         PrettyLogger.info("Attempting to generate directory \(folderName)")
+
         var directory: ObjCBool = true
         if !FileManager.default.fileExists(atPath: folderName, isDirectory: &directory) {
             do {
                 PrettyLogger.generate("Folder does not exist, generating")
                 let folder = URL(fileURLWithPath: folderName, isDirectory: true)
                 try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true, attributes: [:])
-            } catch let e {
+            } catch {
                 if isFatal {
                     fatalError("Error creating directory \(folderName)")
                 } else {

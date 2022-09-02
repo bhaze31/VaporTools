@@ -6,5 +6,6 @@ xcuserdata/
 DerivedData/
 .swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata
 Source/
+App/
 Resources/
 .swiftpm/

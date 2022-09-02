@@ -1,0 +1,29 @@
+// swift-tools-version:5.5
+import PackageDescription
+
+let package = Package(
+    name: "::name::",
+    platforms: [
+       .macOS(.v12)
+    ],
+    dependencies: [
+        ::packages::
+    ],
+    targets: [
+        .target(
+            name: "::name::",
+            dependencies: [
+                ::dependencies::
+            ],
+            swiftSettings: [
+                .unsafeFlags(["-cross-module-optimization"], .when(configuration: .release))
+            ]
+        ),
+        .executableTarget(name: "Run", dependencies: [.target(name: "::name::")]),
+        .testTarget(name: "::name::Tests", dependencies: [
+            .target(name: "::name::"),
+            .product(name: "XCTVapor", package: "vapor"),
+        ])
+    ]
+)
+

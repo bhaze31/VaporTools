@@ -26,21 +26,15 @@ final class SwiftPackageLoader {
     static func load(name: String, packageData: Packages = Packages()) {
         var packageManager = FileHandler.fetchDefaultFile("Package")
         packageManager = packageManager.replacingOccurrences(of: "::name::", with: name)
-        var packages = [".package(url: \"https://github.com/vapor/vapor.git\", from: \"4.0.0\"),"]
-        var dependencies = [".product(name: \"Vapor\", package: \"vapor\"),"]
-            
-//
-//
-//                            ".product(name: \"FluentSQLiteDriver\", package: \"fluent-sqlite-driver\"),",
-//                            ".product(name: \"JWT\", package: \"jwt\"),",
-//                            ".product(name: \"Leaf\", package: \"leaf\"),",
-//                            ".product(name: \"Redis\", package: \"redis\"),",
-//                            ".product(name: \"AutoMigrator\", package: \"AutoMigrator\"),",
-//                            ".product(name: \"QueuesRedisDriver\", package: \"queues-redis-driver\"),",
-//                            ".product(name: \"FormattedResponse\", package: \"FormattedResponse\")"
-        
-        
-        
+        var packages = [
+            ".package(url: \"https://github.com/vapor/vapor.git\", from: \"4.0.0\"),",
+            "\t\t.package(url: \"https://github.com/bhaze31/FormattedResponse.git\", from: \"0.0.1\"),"
+        ]
+        var dependencies = [
+            ".product(name: \"Vapor\", package: \"vapor\"),",
+            "\t\t\t\t.product(name: \"FormattedResponse\", package: \"FormattedResponse\")",
+        ]
+
         if packageData.postgres || packageData.mysql || packageData.mongodb || packageData.sqlite {
             packages.append("\t\t.package(url: \"https://github.com/vapor/fluent.git\", from: \"4.0.0\")")
             dependencies.append("\t\t\t\t.product(name: \"Fluent\", package: \"fluent\"),")
@@ -51,13 +45,13 @@ final class SwiftPackageLoader {
             }
             
             if packageData.mysql {
-                packages.append("\t\t.package(url: \"https://github.com/vapor/fluent-mysql-driver.git\", from: \"2.1.0\"),")
+                packages.append("\t\t.package(url: \"https://github.com/vapor/fluent-mysql-driver.git\", from: \"4.0s.0\"),")
                 dependencies.append("\t\t\t\t.product(name: \"FluentMySQLDriver\", package: \"fluent-mysql-driver\"),")
             }
             
             if packageData.mongodb {
-                packages.append("\t\t.package(url: \"https://github.com/vapor/fluent-mongodb-driver.git\", from: \"2.1.0\"),")
-                dependencies.append("\t\t\t\t.product(name: \"FluentMongoDBDriver\", package: \"fluent-mongodb-driver\"),")
+                packages.append("\t\t.package(url: \"https://github.com/vapor/fluent-mongo-driver.git\", from: \"1.0.0\"),")
+                dependencies.append("\t\t\t\t.product(name: \"FluentMongoDriver\", package: \"fluent-mongo-driver\"),")
             }
             
             if packageData.sqlite {
@@ -65,6 +59,25 @@ final class SwiftPackageLoader {
                 dependencies.append("\t\t\t\t.product(name: \"FluentSQLiteDriver\", package: \"fluent-sqlite-driver\"),")
             }
         }
+        
+        if packageData.jwt {
+            packages.append("\t\t.package(url: \"https://github.com/vapor/jwt.git\", from: \"4.0.0\"),")
+            dependencies.append("\t\t\t\t.product(name: \"JWT\", package: \"jwt\"),")
+        }
+        
+        if packageData.leaf {
+            packages.append("\t\t.package(url: \"https://github.com/vapor/leaf.git\", from: \"4.0.0\"),")
+            dependencies.append("\t\t\t\t.product(name: \"Leaf\", package: \"leaf\"),")
+        }
+        
+        if packageData.autoMigrator {
+            packages.append("\t\t.package(url: \"https://github.com/bhaze31/AutoMigrator.git\", from: \"0.0.4\"),")
+            dependencies.append("\t\t\t\t.product(name: \"AutoMigrator\", package: \"AutoMigrator\"),")
+        }
+
+        
+        
+        
         
         packageManager = packageManager.replacingOccurrences(of: "::packages::", with: packages.joined(separator: "\n"))
         packageManager = packageManager.replacingOccurrences(of: "::dependencies::", with: dependencies.joined(separator: "\n"))

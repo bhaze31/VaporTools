@@ -1,0 +1,13 @@
+{
+    "name": "::name::",
+    "autoMigrate": ::autoMigrate::,
+    "dependencies": {
+        "fluent": ::fluent::,
+        "postgrs": ::postgres::,
+        "mongodb": ::mongodb::,
+        "sqlite": ::sqlite::,
+        "redis": ::redis::
+    },
+    
+    
+}

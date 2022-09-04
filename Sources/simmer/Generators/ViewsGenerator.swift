@@ -59,13 +59,13 @@ final class ViewsGenerator {
     }
     
     private static func getInputForRow(model: String, fields: [Field]) -> String {
-        var row = """
+        let row = """
         <form action="/\(model.lowercased().pluralize())", method="POST">
         """
         
-        for field in fields {
-            
-        }
+//        for field in fields {
+//            
+//        }
         return row + """
         </form>
         """
@@ -97,7 +97,6 @@ final class ViewsGenerator {
     }
     
     static func getEditView(model: String, fields: [String]) -> String {
-        #warning("Move edit view to be create or edit depending on model")
         return """
         #extend("main"):
             #export("title"):

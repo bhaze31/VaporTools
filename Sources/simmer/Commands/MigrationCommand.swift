@@ -42,7 +42,7 @@ final class MigrationCommand: ParsableCommand {
                 MigrationGenerator.emptyMigration(name: name, timestamp: timestamp, autoMigrate: autoMigrate),
                 fileName:
                 "\(timestamp)_\(name).swift",
-                path: .MigrationPath
+                path: PathGenerator.load(path: .Migrations, name: "LOAD_CONFIGURATION_FILE")
             )
             
             return
@@ -88,19 +88,19 @@ final class MigrationCommand: ParsableCommand {
         FileHandler.createFileWithContents(
             migration,
             fileName: "\(timestamp)_\(name).swift",
-            path: .MigrationPath
+            path: PathGenerator.load(path: .Migrations, name: "MISSING_NAME")
         )
         
         // TODO: Add/Remove field key from model class.
         if migrationType == .Add {
             FileHandler.addFieldKeyToFile(
-                folder: .ModelPath,
+                folder: PathGenerator.load(path: .Model, name: "MISSING_NAME"),
                 fileName: modelName ?? "UNKNOWN",
                 fields: fields
             )
         } else if migrationType == .Delete {
             FileHandler.removeFieldKeyFromFile(
-                folder: .ModelPath,
+                folder: PathGenerator.load(path: .Model, name: "MISSING_NAME"),
                 fileName: modelName ?? "UNKNOWN",
                 fields: fields.map { $0.components(separatedBy: ":").first ?? "UNKNOWN_FIELD" }
             )

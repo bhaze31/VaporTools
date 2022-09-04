@@ -20,20 +20,30 @@ struct InitialPackageData {
     var jwt = false
     
     var autoMigrator = true
+    
+    var port: Int?
 }
 
 final class InitiateLoader {
     static func loadAll(for name: String, packageData: InitialPackageData) {
         loadApp(name)
         loadPackageSwift(name, packageData: packageData)
-        loadAppConfiguration(name)
+        loadAppConfiguration(name, packageData: packageData)
         loadErsatzConfiguration(name, packageData: packageData)
+        loadDotEnv(name, packageData: packageData)
     }
+
     static func loadApp(_ name: String) {
         var defaultAppState = FileHandler.fetchDefaultFile("DefaultApp")
         defaultAppState = defaultAppState.replacingOccurrences(of: "::name::", with: name)
         
-        FileHandler.createFileWithContents(defaultAppState, fileName: "main.swift", path: .RunPath)
+        FileHandler.createFileWithContents(defaultAppState, fileName: "main.swift", path: PathGenerator.load(path: .Run, name: name))
+    }
+    
+    static func loadDotEnv(_ name: String, packageData: InitialPackageData) {
+        var dotEnv = FileHandler.fetchDefaultFile("DotEnv")
+        
+        FileHandler.createFileWithContents(dotEnv, fileName: ".env", path: PathGenerator.load(path: .Root, name: name))
     }
     
     static func loadPackageSwift(_ name: String, packageData: InitialPackageData) {
@@ -45,11 +55,11 @@ final class InitiateLoader {
         ]
         var dependencies = [
             ".product(name: \"Vapor\", package: \"vapor\"),",
-            "\t\t\t\t.product(name: \"FormattedResponse\", package: \"FormattedResponse\")",
+            "\t\t\t\t.product(name: \"FormattedResponse\", package: \"FormattedResponse\"),",
         ]
 
         if packageData.postgres || packageData.mysql || packageData.mongodb || packageData.sqlite {
-            packages.append("\t\t.package(url: \"https://github.com/vapor/fluent.git\", from: \"4.0.0\")")
+            packages.append("\t\t.package(url: \"https://github.com/vapor/fluent.git\", from: \"4.0.0\"),")
             dependencies.append("\t\t\t\t.product(name: \"Fluent\", package: \"fluent\"),")
             
             if packageData.postgres {
@@ -99,7 +109,7 @@ final class InitiateLoader {
         packageManager = packageManager.replacingOccurrences(of: "::packages::", with: packages.joined(separator: "\n"))
         packageManager = packageManager.replacingOccurrences(of: "::dependencies::", with: dependencies.joined(separator: "\n"))
 
-        FileHandler.createFileWithContents(packageManager, fileName: "Package.swift", path: .RootPath)
+        FileHandler.createFileWithContents(packageManager, fileName: "Package.swift", path: PathGenerator.load(path: .Root, name: name))
     }
     
     static func loadErsatzConfiguration(_ name: String, packageData: InitialPackageData) {
@@ -111,11 +121,56 @@ final class InitiateLoader {
         FileHandler.createFileWithContents(
             ersatzConfig,
             fileName: "ersatz.json",
-            path: .RootPath
+            path: PathGenerator.load(path: .Root, name: name)
         )
     }
     
-    static func loadAppConfiguration(_ name: String) {
+    static func loadAppConfiguration(_ name: String, packageData: InitialPackageData) {
+        var appConfiguration = FileHandler.fetchDefaultFile("AppConfiguration")
+        appConfiguration = appConfiguration.replacingOccurrences(of: "::port::", with: "\(packageData.port ?? 3162)")
         
+        var imports = ["import Vapor"]
+        
+        if packageData.postgres || packageData.mysql || packageData.sqlite || packageData.mongodb {
+            imports.append("import Fluent")
+            
+            var dbConfiguration: String = ""
+            if packageData.postgres {
+                dbConfiguration = """
+                if var config = PostgresConfiguration(url: Environment.databaseURL),
+                   ["development", "production"].contains(app.environment.name) {
+                    if app.environment.isRelease {
+                        config.tlsConfiguration = TLSConfiguration.makeClientConfiguration()
+                    }
+                    
+                    app.databases.use(.postgres(configuration: config), as: .psql)
+                } else {
+                    if let config = PostgresConfiguration(url: Environment.databaseURL) {
+                        app.databases.use(.postgres(configuration: config), as: .psql)
+                    }
+                }
+                """
+            }
+            
+            appConfiguration = appConfiguration.replacingOccurrences(of: "::fluent::", with: dbConfiguration)
+        } else {
+            appConfiguration = appConfiguration.replacingOccurrences(of: "::fluent::", with: "")
+        }
+        
+        if packageData.leaf {
+            let leafConfig = """
+            app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
+            
+            \t\tapp.views.use(.leaf)
+            """
+            
+            appConfiguration = appConfiguration.replacingOccurrences(of: "::leaf::", with: leafConfig)
+            
+            imports.append("import Leaf")
+        } else {
+            appConfiguration = appConfiguration.replacingOccurrences(of: "::leaf::", with: "")
+        }
+        
+        FileHandler.createFileWithContents(appConfiguration, fileName: "configure.swift", path: PathGenerator.load(path: .App, name: name))
     }
 }

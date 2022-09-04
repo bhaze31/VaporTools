@@ -1,37 +1,6 @@
 import ArgumentParser
 import Foundation
 
-#if DEBUG
-    let SOURCE_BASE = "Source"
-#else
-    let SOURCE_BASE = "Sources"
-#endif
-final class PathGenerator {
-    enum Pathname: String {
-        case Base = "Sources"
-        case Controller
-        case Middleware
-        case Migrations
-        case Model
-    }
-
-    static func load(path: Pathname, name: String) -> String {
-        #warning("Allow for configuration to determine paths")
-        switch (path) {
-            case .Base:
-                return SOURCE_BASE
-            case .Controller:
-                return "\(SOURCE_BASE)/\(name)/Controllers"
-            case .Middleware:
-                return "\(SOURCE_BASE)/\(name)/Middleware"
-            case .Migrations:
-                return "\(SOURCE_BASE)/\(name)/Migrations"
-            case .Model:
-                return "\(SOURCE_BASE)/\(name)/Models"
-        }
-    }
-}
-
 final class InitiateCommand: ParsableCommand {
     static let _commandName: String = "initiate"
     static let configuration = CommandConfiguration(
@@ -75,6 +44,9 @@ final class InitiateCommand: ParsableCommand {
     
     @Flag(name: [.customShort("r"), .customLong("redis")], help: "Add Redis configuration.")
     private var useRedis: Bool = false
+    
+    @Option(name: [.customShort("p"), .customLong("port")], help: "Default port to listen on.")
+    private var defaultPort: Int?
 
     func run() throws {
         PrettyLogger.generate("Initiating Vapor application \(name)")
@@ -82,8 +54,6 @@ final class InitiateCommand: ParsableCommand {
         FileHandler.createFolderUnlessExists(name, isFatal: true)
         
         FileManager.default.changeCurrentDirectoryPath("./\(name)")
-        
-        #warning("Generate full vapor application here")
         
         let packageData = InitialPackageData(
             postgres: usePostgres,

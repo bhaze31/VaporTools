@@ -30,42 +30,42 @@ final class AuthenticationCommand: ParsableCommand {
 			FileHandler.createFileWithContents(
 				jwtMiddleware,
 				fileName: "APIMiddleware.swift",
-				path: .MiddlewarePath,
+				path: PathGenerator.load(path: .Middleware, name: "MISSING_NAME"),
 				displayIfConflicting: true
 			)
 			
 			FileHandler.createFileWithContents(
 				jwtToken,
 				fileName: "Token.swift",
-				path: .ModelPath,
+				path: PathGenerator.load(path: .Model, name: "MISSING_NAME"),
 				displayIfConflicting: true
 			)
 		} else if webOnly {
 			FileHandler.createFileWithContents(
 				webMiddleware,
 				fileName: "WebMiddleware.swift",
-				path: .MiddlewarePath,
+				path: PathGenerator.load(path: .Middleware, name: "MISSING_NAME"),
 				displayIfConflicting: true
 			)
 		} else {
 			FileHandler.createFileWithContents(
 				jwtMiddleware,
 				fileName: "APIMiddleware.swift",
-				path: .MiddlewarePath,
+				path: PathGenerator.load(path: .Middleware, name: "MISSING_NAME"),
 				displayIfConflicting: true
 			)
 			
 			FileHandler.createFileWithContents(
 				jwtToken,
 				fileName: "Token.swift",
-				path: .ModelPath,
+				path: PathGenerator.load(path: .Model, name: "MISSING_NAME"),
 				displayIfConflicting: true
 			)
 			
 			FileHandler.createFileWithContents(
 				webMiddleware,
 				fileName: "WebMiddleware.swift",
-				path: .MiddlewarePath,
+				path: PathGenerator.load(path: .Middleware, name: "MISSING_NAME"),
 				displayIfConflicting: true
 			)
 		}

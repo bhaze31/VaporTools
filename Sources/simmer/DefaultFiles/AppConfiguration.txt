@@ -2,16 +2,13 @@
 
 // configures your application
 public func configure(_ app: Application) throws {
-    app.http.server.configuration.port = 3162
-        
+    app.http.server.configuration.port = ::port::
+
     // Leaf Views + Tags
     ::leaf::
-    app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
-    
-    app.views.use(.leaf)
     
     // Database configurations
-    ::fluent:":"
+    ::fluent::
     if var config = PostgresConfiguration(url: Environment.databaseURL),
        ["development", "production"].contains(app.environment.name) {
         if app.environment.isRelease {

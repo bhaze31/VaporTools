@@ -17,7 +17,7 @@ final class ControllerCommand: ParsableCommand {
             FileHandler.createFileWithContents(
                 controller,
                 fileName: "\(_model)Controller.swift",
-                path: .ControllerPath
+                path: PathGenerator.load(path: .Controller, name: "MISSING_NAME")
             )
 
             return
@@ -31,7 +31,7 @@ final class ControllerCommand: ParsableCommand {
         FileHandler.createFileWithContents(
             controller,
             fileName: "\(timestamp)Controller.swift",
-            path: .ControllerPath
+            path: PathGenerator.load(path: .Controller, name: "MISSING_NAME")
         )
 	}
 }

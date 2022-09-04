@@ -1,7 +1,6 @@
 import ArgumentParser
 import Foundation
 
-#warning("Add color to the discussion/commands")
 struct Simmer: ParsableCommand {
     static let configuration = CommandConfiguration(
         abstract: "A Swift command line tool to manage Vapor applications",

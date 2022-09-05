@@ -2,8 +2,10 @@ import Foundation
 
 #if DEBUG
     let SOURCE_BASE = "Source"
+    let TEST_BASE = "Test"
 #else
     let SOURCE_BASE = "Sources"
+    let TEST_BASE = "Tests"
 #endif
 
 final class PathGenerator {
@@ -12,7 +14,9 @@ final class PathGenerator {
         case Root
         case App
         case Run
+        case Test
         case Controller
+        case Extensions
         case Middleware
         case Migrations
         case Model
@@ -28,9 +32,13 @@ final class PathGenerator {
             case .App:
                 return "\(SOURCE_BASE)/\(name)"
             case .Run:
-                return "\(SOURCE_BASE)/\(name)/Run"
+                return "\(SOURCE_BASE)/Run"
+            case .Test:
+                return "\(TEST_BASE)/\(name)Tests"
             case .Controller:
                 return "\(SOURCE_BASE)/\(name)/Controllers"
+            case .Extensions:
+                return "\(SOURCE_BASE)/\(name)/Extensions"
             case .Middleware:
                 return "\(SOURCE_BASE)/\(name)/Middleware"
             case .Migrations:

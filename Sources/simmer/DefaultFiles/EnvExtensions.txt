@@ -1,0 +1,52 @@
+import Vapor
+
+extension Environment {
+    static private func getStringFromEnvironment(key: String) -> String {
+        guard let key = Environment.get(key) else {
+            fatalError("Key: \(key) not configured in environment")
+        }
+        
+        return key
+    }
+    
+    static var databaseURL: URL {
+        guard let urlString = Environment.get("DATABASE_URL"), let url = URL(string: urlString) else {
+            fatalError("DATABASE_URL not configured")
+        }
+        
+        return url
+    }
+    
+    static var redisURL: URL {
+        guard let urlString = Environment.get("REDIS_URL"), let url = URL(string: urlString) else {
+            fatalError("REDIS_URL not configured")
+        }
+        
+        return url
+    }
+    
+    static var privateKey: String {
+        guard let privateKey = Environment.get("SIGNING_KEY") else {
+            fatalError("SIGNING_KEY not configured")
+        }
+        
+        guard let data = Data(base64Encoded: privateKey), let key = String(data: data, encoding: .utf8) else {
+            fatalError("SIGNING_KEY in invalid form")
+        }
+
+        return key
+    }
+    
+    static var publicKey: String {
+        guard let publicKey = Environment.get("PUBLIC_KEY") else {
+            fatalError("PUBLIC_KEY not configured")
+        }
+        
+        guard let data = Data(base64Encoded: publicKey), let key = String(data: data, encoding: .utf8) else {
+            fatalError("PUBLIC_KEY in invalid form")
+        }
+        
+        return key
+    }
+}
+

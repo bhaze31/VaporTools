@@ -1,0 +1,16 @@
+@testable import ::name::
+import XCTVapor
+
+final class ::name::Tests: XCTestCase {
+    func testHelloWorld() throws {
+        let app = Application(.testing)
+        defer { app.shutdown() }
+        try configure(app)
+
+        try app.test(.GET, "hello", afterResponse: { res in
+            // This will fail, as simmer does not 
+            // XCTAssertEqual(res.status, .ok)
+            // XCTAssertEqual(res.body.string, "Hello, world!")
+        })
+    }
+}

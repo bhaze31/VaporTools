@@ -42,6 +42,8 @@ final class ViewTests: XCTestCase {
                     <p>#(model.name)</p>
                     <p>#(model.email)</p>
                 </div>
+        
+                <a href="/users/#(model.id)/edit">Edit User</a>
             #endexport
         #endextend
         """)
@@ -74,17 +76,25 @@ final class ViewTests: XCTestCase {
                         <th>Created At</th>
                     </tr>
 
-                    #for(item in items) {
+                    #for(item in items):
                         <tr>
                             <td>#(item.name)</td>
                             <td>#(item.email)</td>
                             <td>#(item.created_at)</td>
                             <td><a href="/users/{{ item.id }}/edit">Edit</a></td>
                         </tr>
-                    }
+                    #endfor
                 </table>
+        
+                <a href="/users">Create User</a>
             #endexport
         #endextend
         """)
     }
+    
+//    func testEditView() {
+//        let fields = [
+//            "name:email"
+//        ]
+//    }
 }

@@ -1,15 +1,16 @@
 import Foundation
 
 final class FileHandler {
-    static func fileExists(fileName: String, path: PathConstants) -> Bool {
-        return FileManager.default.fileExists(atPath: "\(path.rawValue)/\(fileName)")
+    static func fileExists(fileName: String, path: String) -> Bool {
+        return FileManager.default.fileExists(atPath: "\(path)/\(fileName)")
     }
     
     static func createViewFileWithContents(_ contents: String, model: String, fileName: String, displayIfConflicting: Bool = false) {
-        createFolderUnlessExists(PathConstants.ViewsPath.rawValue)
-        createFolderUnlessExists(PathConstants.ViewsPath.rawValue + "/\(model.toModelCase())")
+        let viewsPath = PathGenerator.load(path: .Views)
+        createFolderUnlessExists(viewsPath)
+        createFolderUnlessExists(viewsPath + "/\(model.toModelCase())")
 
-        var path = PathConstants.ViewsPath.rawValue
+        var path = viewsPath
 
         path += "/\(model.toModelCase())/\(fileName).leaf"
 
@@ -35,11 +36,10 @@ final class FileHandler {
     }
 
     static func createMainView() {
-        createFolderUnlessExists(PathConstants.ViewsPath.rawValue)
+        let path = PathGenerator.load(path: .Views)
+        createFolderUnlessExists(path)
 
-        let path = PathConstants.ViewsPath.rawValue
-
-        if !FileHandler.fileExists(fileName: "main.leaf", path: PathConstants.ViewsPath) {
+        if !FileHandler.fileExists(fileName: "main.leaf", path: PathGenerator.load(path: .Views)) {
             let mainView = ViewsGenerator.generateMainView()
             
             FileManager.default.createFile(
@@ -50,12 +50,10 @@ final class FileHandler {
         }
     }
 
-    static func createFileWithContents(_ contents: String, fileName: String, path _path: PathConstants, displayIfConflicting: Bool = false) {
-        createFolderUnlessExists(_path.rawValue)
+    static func createFileWithContents(_ contents: String, fileName: String, path: String, displayIfConflicting: Bool = false, overwriteFile: Bool = false) {
+        createFolderUnlessExists(path)
 
-        let path = _path.rawValue
-
-        if FileManager.default.fileExists(atPath: "\(path)/\(fileName)") {
+        if FileManager.default.fileExists(atPath: "\(path)/\(fileName)") && !overwriteFile {
             print("File \(fileName) already exists")
 
             if displayIfConflicting {
@@ -67,8 +65,8 @@ final class FileHandler {
             return
         }
 
-        print("Creating file at path: \(path)/\(fileName)")
-
+        print("Creating file at path: \(path == "./" ? "." : path)/\(fileName)")
+        
         FileManager.default.createFile(
             atPath: "\(path)/\(fileName)",
             contents: contents.data(using: .utf8),
@@ -76,10 +74,19 @@ final class FileHandler {
         )
     }
     
-    static func changeFileWithContents(_ contents: String, fileName: String, path _path: PathConstants) {
-        createFolderUnlessExists(_path.rawValue)
+    static func fetchDefaultFile(_ file: String) -> String {
+        print(Bundle.module.url(forResource: "DefaultFiles/\(file)", withExtension: ".txt") ?? "Invalid resource")
+        guard let url = Bundle.module.url(forResource: "DefaultFiles/\(file)", withExtension: ".txt"), let contents = try? String(contentsOfFile: url.path) else {
+            PrettyLogger.error("Cannot load contents of file \(file), this is a problem with Simmer, please report it at: https://github.com/bhaze31/simmer")
+            exit(0)
+        }
+        
+        return contents
+    }
     
-        let path = _path.rawValue
+    static func changeFileWithContents(_ contents: String, fileName: String, path: String) {
+        createFolderUnlessExists(path)
+
     
         print("Updating file at path: \(path)/\(fileName)")
     
@@ -90,21 +97,40 @@ final class FileHandler {
         )
     }
 
-    static func createFolderUnlessExists(_ folderName: String) {
+    static func createFolderUnlessExists(_ folderName: String, isFatal: Bool = false) {
+        // We are just generating a file in the current directory, this should never be called
+        if folderName == "./" {
+            PrettyLogger.info("Attempting to add a folder that is just the current directory, bailing.")
+            return
+        }
+        
+        PrettyLogger.info("Attempting to generate directory \(folderName)")
+
         var directory: ObjCBool = true
         if !FileManager.default.fileExists(atPath: folderName, isDirectory: &directory) {
             do {
+                PrettyLogger.generate("Folder does not exist, generating")
                 let folder = URL(fileURLWithPath: folderName, isDirectory: true)
                 try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true, attributes: [:])
-            } catch let e {
-                print(e)
-                print("Error creating directory")
+            } catch {
+                if isFatal {
+                    fatalError("Error creating directory \(folderName)")
+                } else {
+                    print("Error creating directory")
+                }
+                
+            }
+        } else {
+            PrettyLogger.error("Error generating folder, folder '\(folderName)' exists.")
+            if isFatal {
+                PrettyLogger.error("Cannot continue without generating folder, exiting.")
+                exit(0)
             }
         }
     }
     
     static func addRouteCollectionToRouter(controllerName: String) {
-        let path = "\(PathConstants.ApplicationPath.rawValue)/routes.swift"
+        let path = PathGenerator.load(path: .App, name: "MISSING_NAME")
 
         if let data = FileManager.default.contents(atPath: path), let file = String(data: data, encoding: .utf8) {
             var fileData = [String]()
@@ -135,9 +161,8 @@ final class FileHandler {
         }
     }
     
-    static func addFieldKeyToFile(folder _folderName: PathConstants, fileName: String, fields: [String]) {
-        let folderName = _folderName.rawValue
-        let path = "\(folderName)/\(fileName).swift"
+    static func addFieldKeyToFile(folder: String, fileName: String, fields: [String]) {
+        let path = "\(folder)/\(fileName).swift"
         
         if let data = FileManager.default.contents(atPath: path), let file = String(data: data, encoding: .utf8) {
             var fileData = [String]()
@@ -171,12 +196,11 @@ final class FileHandler {
                 fileData.append(row)
             }
             
-            FileManager.default.createFile(atPath: "\(folderName)/\(fileName).swift", contents: fileData.joined(separator: "\n").data(using: .utf8), attributes: [:])
+            FileManager.default.createFile(atPath: "\(folder)/\(fileName).swift", contents: fileData.joined(separator: "\n").data(using: .utf8), attributes: [:])
         }
     }
     
-    static func removeFieldKeyFromFile(folder _folderName: PathConstants, fileName: String, fields: [String]) {
-        let folderName = _folderName.rawValue
+    static func removeFieldKeyFromFile(folder folderName: String, fileName: String, fields: [String]) {
         let path = "\(folderName)/\(fileName).swift"
         
         if let data = FileManager.default.contents(atPath: path), let file = String(data: data, encoding: .utf8) {

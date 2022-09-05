@@ -18,6 +18,46 @@ struct Field {
     var keyType: String?
     var valueType: String?
     
+    init(field: String) {
+        var split = field.components(separatedBy: ":")
+        
+        if split.count != 2 && split.count != 3 {
+            split = [split[0], "string"]
+        }
+        
+        isOptional = split.count == 3 && ["optional", "o", "true"].contains(split[2])
+        
+        name = split[0]
+        type = split[1]
+        isArray = false
+        
+        if type.starts(with: "dict") {
+            let splitType = type.components(separatedBy: "|")
+            
+            type = splitType[0]
+
+            if splitType.count != 3 {
+                keyType = "String"
+                valueType = "Any"
+            } else {
+                keyType = splitType[1]
+                valueType = splitType[2]
+            }
+        }
+        
+        if type.contains(".") {
+            let splitType = type.components(separatedBy: ".")
+            
+            type = splitType[0]
+            
+            if splitType.count != 2 {
+                isArray = false
+            } else if ["a", "array", "multi"].contains(splitType[1]) {
+                isArray = true
+            }
+        }
+    }
+    
     func getSwiftType() -> String {
         switch type {
             case "string", "int", "double", "bool", "date", "any":
@@ -130,73 +170,47 @@ func extractFieldsData(fields fs: [String], failOnError: Bool = false) -> [Field
     var fields = [Field]()
     
     for field in fs {
-        let split = field.components(separatedBy: ":")
-        
-        if split.count != 2 && split.count != 3 {
-            if failOnError {
-                fatalError("Invalid field: \(field). Should be in the format <name>:<type>:[o] where the last part is optional and indicates an optional value.")
-            }
-
-            print("[XX] Invalid field: \(field). Should be in the format <name>:<type>:[o] where the last part is optional and indicates an optional value.")
-            continue
-        }
-        
-        let optional = split.count == 3 && ["optional", "o", "true"].contains(split[2])
-        
-        let fieldName = split[0]
-        var fieldType = split[1]
-        var array = false
-        var keyType: String?
-        var valueType: String?
-        
-        if fieldType.starts(with: "dict") {
-            let splitType = fieldType.components(separatedBy: "|")
-            
-            if splitType.count != 3 {
-                if failOnError {
-                    fatalError("Dict type must be in format dict|[key_type]|[value_type].")
-                }
-                
-                print("[XX] Dict type must be in format dict|[key_type]|[value_type].")
-                continue
-            }
-            
-            fieldType = splitType[0]
-            keyType = splitType[1]
-            valueType = splitType[2]
-        }
-        
-        if fieldType.contains(".") {
-            let splitType = fieldType.components(separatedBy: ".")
-            
-            if splitType.count != 2 {
-                if failOnError {
-                    fatalError("Type can only contain one . for definition.")
-                }
-                
-                print("[XX] Type can only contain one . for definition.")
-                continue
-            }
-            
-            fieldType = splitType[0]
-            
-            if ["a", "array", "multi"].contains(splitType[1]) {
-                array = true
-            }
-        }
-        
-        // TODO: Handle Dictionary type
-
-        fields.append(Field(
-            name: fieldName,
-            type: fieldType,
-            isOptional: optional,
-            isArray: array,
-            keyType: keyType,
-            valueType: valueType
-        ))
+        fields.append(Field(field: field))
     }
 
     return fields
+}
+
+enum PrettyColor: String {
+    case black = "\u{001B}[0;30m"
+    case red = "\u{001B}[0;31m"
+    case green = "\u{001B}[0;32m"
+    case yellow = "\u{001B}[0;33m"
+    case blue = "\u{001B}[0;34m"
+    case magenta = "\u{001B}[0;35m"
+    case cyan = "\u{001B}[0;36m"
+    case white = "\u{001B}[0;37m"
+    case `default` = "\u{001B}[0;0m"
+    
+    static func color(_ with: PrettyColor) -> String {
+        return with.rawValue
+    }
+}
+
+final class PrettyLogger {
+    static func error(_ info: String, _ prefix: String = "[XX]", color: PrettyColor = .red, fullLength: Bool = false, secondaryColor: PrettyColor = .default) {
+        _log(info: info, prefix: prefix, firstColor: color.rawValue, secondColor: fullLength ? color.rawValue : secondaryColor.rawValue)
+    }
+    
+    static func info(_ info: String, _ prefix: String = "[!!]", color: PrettyColor = .blue, fullLength: Bool = false, secondaryColor: PrettyColor = .default) {
+        _log(info: info, prefix: prefix, firstColor: color.rawValue, secondColor: fullLength ? color.rawValue : secondaryColor.rawValue)
+    }
+    
+    static func generate(_ info: String, _ prefix: String = "[**]", color: PrettyColor = .green, fullLength: Bool = false, secondaryColor: PrettyColor = .default) {
+        _log(info: info, prefix: prefix, firstColor: color.rawValue, secondColor: fullLength ? color.rawValue : secondaryColor.rawValue)
+    }
+    
+    static func log(_ info: String, _ prefix: String = "[--]", color: PrettyColor = .default, fullLength: Bool = false, secondaryColor: PrettyColor = .default) {
+        _log(info: info, prefix: prefix, firstColor: color.rawValue, secondColor: fullLength ? color.rawValue : secondaryColor.rawValue)
+    }
+    
+    private static func _log(info: String, prefix: String, firstColor: String, secondColor: String) {
+        print("\(firstColor)\(prefix) \(secondColor)\(info)\(PrettyColor.color(.default))")
+    }
 }
 

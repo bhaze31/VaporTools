@@ -1,0 +1,11 @@
+if var config = PostgresConfiguration(url: Environment.databaseURL), ["development", "production"].contains(app.environment.name) {
+    if app.environment.isRelease {
+        config.tlsConfiguration = TLSConfiguration.makeClientConfiguration()
+    }
+    
+    app.databases.use(.postgres(configuration: config), as: .psql)
+} else {
+    if let config = PostgresConfiguration(url: Environment.databaseURL) {
+        app.databases.use(.postgres(configuration: config), as: .psql)
+    }
+}

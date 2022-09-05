@@ -15,113 +15,57 @@ final class InitiateCommand: ParsableCommand {
         """
     )
 
-    @Option(help: "Name of application to generate")
-    private var name: String?
+    @Option(name: [.customShort("a"), .customLong("app")], help: "Name of application to generate.")
+    private var name: String = "App"
 
+    @Flag(name: [.customShort("m"), .customLong("auto-migrator")], help: "Use auto-migrator by default.")
+    private var useAutoMigrator: Bool = false
+    
     @Flag(help: "Display contents of conflicting files")
     private var showContents = false
+    
+    @Flag(name: .customLong("postgres"), help: "Add PostgreSQL")
+    private var usePostgres: Bool = false
+    
+    @Flag(name: .customLong("sqlite"), help: "Add SQLite")
+    private var useSQLite: Bool = false
+    
+    @Flag(name: .customLong("mysql"), help: "Add MySQL")
+    private var useMySQL: Bool = false
+    
+    @Flag(name: .customLong("mongodb"), help: "Add MongoDB")
+    private var useMongoDB: Bool = false
 
-    @Flag(name: .shortAndLong, help: "Add authentication middleware")
-    private var middlewareAuthenticator = false
+    @Flag(name: .customLong("jwt"), help: "Add JWT support")
+    private var useJWT: Bool = false
+
+    @Flag(name: [.customShort("l"), .customLong("leaf")], help: "Add Leaf for templating.")
+    private var useLeaf: Bool = false
     
-    @Flag(name: .shortAndLong, help: "Only use JWT authentication middleware with authenticator flag.")
-    private var jwt = false
+    @Flag(name: [.customShort("r"), .customLong("redis")], help: "Add Redis configuration.")
+    private var useRedis: Bool = false
     
-    @Flag(name: .shortAndLong, help: "Only use web session middleware with authenticator flag.")
-    private var web = false
-    
-    @Flag(name: .shortAndLong, help: "Skip loading a Redis configuration.")
-    private var redisSkip = false
-    
-    @Flag(name: .shortAndLong, help: "Skip creating Environment extensions.")
-    private var environmentSkip = false
-    
-    @Flag(name: .shortAndLong, help: "Don't include AutoMigrator in configuration.")
-    private var autoMigrationSkip = false
-    
-    @Flag(name: .shortAndLong, help: "Don't load JWT signing keys.")
-    private var signingSkip = false
+    @Option(name: [.customShort("p"), .customLong("port")], help: "Default port to listen on.")
+    private var defaultPort: Int?
 
     func run() throws {
-        if name != nil {
-            print("Initiating Vapor application \(name!)")
-        } else {
-            print("Initiating Vapor application")
-        }
+        PrettyLogger.generate("Initiating Vapor application \(name)")
         
-        #warning("Generate full vapor application here")
+        FileHandler.createFolderUnlessExists(name, isFatal: true)
         
-        let config = ConfigurationGenerator.generateRedisConfiguration()
+        FileManager.default.changeCurrentDirectoryPath("./\(name)")
         
-        FileHandler.changeFileWithContents(
-            config, fileName: "configuration.swift",
-            path: .ApplicationPath
+        let packageData = InitialPackageData(
+            postgres: usePostgres,
+            mysql: useMySQL,
+            mongodb: useMongoDB,
+            sqlite: useSQLite,
+            redis: useRedis,
+            leaf: useLeaf,
+            jwt: useJWT,
+            autoMigrator: useAutoMigrator
         )
 
-        let controllerProtocol = ControllerGenerator.generateControllerProtocol()
-        
-        FileHandler.createFileWithContents(
-            controllerProtocol,
-            fileName: "ControllerProtocol.swift",
-            path: .ProtocolPath
-        )
-        
-        let modelProtocol = ControllerGenerator.generateModelProtocol()
-        
-        FileHandler.createFileWithContents(
-            modelProtocol,
-            fileName: "ControllerModelProtocol.swift",
-            path: .ProtocolPath
-        )
-        
-        if middlewareAuthenticator {
-            let jwtMiddleware = AuthenticationGenerator.generateJWTMiddleware()
-            let jwtToken = AuthenticationGenerator.generateToken()
-            let webMiddleware = AuthenticationGenerator.generateWebMiddleware()
-
-            if jwt {
-                FileHandler.createFileWithContents(
-                    jwtMiddleware,
-                    fileName: "APIMiddleware.swift",
-                    path: .MiddlewarePath,
-                    displayIfConflicting: true
-                )
-                
-                FileHandler.createFileWithContents(
-                    jwtToken,
-                    fileName: "Token.swift",
-                    path: .ModelPath,
-                    displayIfConflicting: true
-                )
-            } else if web {
-                FileHandler.createFileWithContents(
-                    webMiddleware,
-                    fileName: "WebMiddleware.swift",
-                    path: .MiddlewarePath,
-                    displayIfConflicting: true
-                )
-            } else {
-                FileHandler.createFileWithContents(
-                    jwtMiddleware,
-                    fileName: "APIMiddleware.swift",
-                    path: .MiddlewarePath,
-                    displayIfConflicting: true
-                )
-                
-                FileHandler.createFileWithContents(
-                    jwtToken,
-                    fileName: "Token.swift",
-                    path: .ModelPath,
-                    displayIfConflicting: true
-                )
-                
-                FileHandler.createFileWithContents(
-                    webMiddleware,
-                    fileName: "WebMiddleware.swift",
-                    path: .MiddlewarePath,
-                    displayIfConflicting: true
-                )
-            }
-        }
+        InitiateLoader.loadAll(for: name, packageData: packageData)
     }
 }

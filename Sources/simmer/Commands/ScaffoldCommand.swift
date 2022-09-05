@@ -13,7 +13,9 @@ final class ScaffoldCommand: ParsableCommand {
         
         Model: The resource that represents a table in your database
         Migration: For this command, the initial migration related to the created Model
+        
         [X]Representable: Data can be represented differently within the API and the Web versions, these helper methods return Codable content
+        
         Controllers: Since Web and API representable are different, we also supply two different controllers
         AutoMigrate: A custom class that can be added to your Vapor application that allows for automatically adding all Migrations, use this flag to use that class instead of Migration.
         Views: Basic Show, Index, and Form views to interact with your Model. Not generated if api-only flag is passed.
@@ -91,19 +93,19 @@ final class ScaffoldCommand: ParsableCommand {
         FileHandler.createFileWithContents(
             model,
             fileName: "\(name.toModelCase()).swift",
-            path: .ModelPath
+            path: PathGenerator.load(path: .Model, name: "MISSING_NAME")
         )
         
         FileHandler.createFileWithContents(
             controller,
             fileName: "\(name.toModelCase())Controller.swift",
-            path: .ControllerPath
+            path: PathGenerator.load(path: .Controller, name: "MISSING_NAME")
         )
         
         FileHandler.createFileWithContents(
             migration,
             fileName: "\(timestamp)_Create\(name).swift",
-            path: .MigrationPath
+            path: PathGenerator.load(path: .Migrations, name: "MISSING_NAME")
         )
         
         

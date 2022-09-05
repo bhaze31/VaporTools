@@ -1,0 +1,32 @@
+::imports::
+
+// configures your application
+public func configure(_ app: Application) throws {
+    app.http.server.configuration.port = ::port::
+
+    // Leaf Views + Tags
+    ::leaf::
+    
+    // Database configurations
+    ::fluent::
+
+    // Session + Token information
+    ::sessions::
+    
+    ::jwt::
+    
+    // Queues information
+    ::redis::
+    
+    // Migrations
+    ::migrations::
+    
+    if !app.environment.isRelease {
+        let _ = app.autoMigrate()
+    }
+    
+    // Routes information
+    try routes(app)
+    
+}
+

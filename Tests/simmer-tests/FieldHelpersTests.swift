@@ -3,49 +3,25 @@ import XCTest
 
 final class FieldTests: XCTestCase {
     func testDictionaryField() throws {
-        var dict = Field(
-            name: "test",
-            type: "dict",
-            keyType: "string",
-            valueType: "User"
-        )
+        var dict = Field(field: "test:dict|string|User")
         
         var swiftType = dict.getSwiftType()
         
         XCTAssertEqual(swiftType, "Dictionary<String, User>")
         
-        dict = Field(
-            name: "test",
-            type: "dict",
-            isArray: true,
-            keyType: "string",
-            valueType: "double"
-        )
+        dict = Field(field: "test:dict.a|string|double")
         
         swiftType = dict.getSwiftType()
         
         XCTAssertEqual(swiftType, "[Dictionary<String, Double>]")
         
-        dict = Field(
-            name: "test",
-            type: "dict",
-            isOptional: true,
-            keyType: "string",
-            valueType: "dict"
-        )
+        dict = Field(field: "test:dict|string|dict:o")
         
         swiftType = dict.getSwiftType()
         
         XCTAssertEqual(swiftType, "Dictionary<String, Any>?")
         
-        dict = Field(
-            name: "test",
-            type: "dict",
-            isOptional: true,
-            isArray: true,
-            keyType: "int",
-            valueType: "string"
-        )
+        dict = Field(field: "test:dict.a|int|string:o")
         
         swiftType = dict.getSwiftType()
         
@@ -53,41 +29,25 @@ final class FieldTests: XCTestCase {
     }
     
     func testStringField() throws {
-        let string = Field(
-            name: "test",
-            type: "string"
-        )
+        let string = Field(field: "test:string")
         
         var swiftType = string.getSwiftType()
         
         XCTAssertEqual(swiftType, "String")
         
-        let stringArray = Field(
-            name: "test",
-            type: "string",
-            isArray: true
-        )
+        let stringArray = Field(field: "test:string.a")
         
         swiftType = stringArray.getSwiftType()
         
         XCTAssertEqual(swiftType, "[String]")
         
-        let stringOptional = Field(
-            name: "test",
-            type: "string",
-            isOptional: true
-        )
+        let stringOptional = Field(field: "test:string:o")
         
         swiftType = stringOptional.getSwiftType()
         
         XCTAssertEqual(swiftType, "String?")
         
-        let stringOptionalArray = Field(
-            name: "test",
-            type: "string",
-            isOptional: true,
-            isArray: true
-        )
+        let stringOptionalArray = Field(field: "test:string.a:o")
         
         swiftType = stringOptionalArray.getSwiftType()
         

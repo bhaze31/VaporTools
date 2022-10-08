@@ -1,9 +1,61 @@
 import Foundation
 import ArgumentParser
 
+enum MigrationType {
+    case Add
+    case Delete
+    case Create
+    case Unknown
+}
+
+struct MigrationOptions {
+    var name: String
+    var timestamp: String
+    var migrationType: MigrationType
+    var fields: [String]
+    var model: String?
+    var isAutoMigrate: Bool
+    var isAsync: Bool
+    var stringTypes: Bool
+    var isEmpty: Bool
+    var skipModel: Bool
+    
+    init(name: String, fields: [String], model: String?, isAutoMigrate: Bool, isAsync: Bool, stringTypes: Bool, isEmpty: Bool, skipModel: Bool) {
+        if name.starts(with: "Add") {
+            let parts = name.components(separatedBy: "To")
+            self.migrationType = .Add
+            self.model = parts.last
+        } else if name.starts(with: "Remove") || name.starts(with: "Delete") {
+            let parts = name.components(separatedBy: "From")
+            migrationType = .Delete
+            self.model = parts.last
+        } else if name.starts(with: "Create") {
+            migrationType = .Create
+            
+            self.model = name
+            self.model?.removeFirst(6)
+        } else {
+            migrationType = .Unknown
+            self.model = name
+        }
+        
+        if model != nil {
+            self.model = model
+        }
+        
+        self.timestamp = getTimestamp()
+        self.name = name
+        self.fields = fields
+        self.isAutoMigrate = isAutoMigrate
+        self.isAsync = isAsync
+        self.stringTypes = stringTypes
+        self.isEmpty = isEmpty
+        self.skipModel = skipModel
+    }
+}
+
 final class MigrationCommand: ParsableCommand {
     static let _commandName: String = "migration"
-    static let _name: String = "shortAndLong"
 
     static let configuration = CommandConfiguration(
         abstract: "Generate a stand-alone migration",
@@ -17,12 +69,11 @@ final class MigrationCommand: ParsableCommand {
         For all options, refer to the manual at simmer manual.
         """
     )
+
+    @Argument(help: "The name of the migration to generate.")
+    private var name: String
     
-    
-    @Argument(help: "The name of the migration to generate. If empty will default to the timestamp only")
-    private var name: String = ""
-    
-    @Argument(help: "Field name and type for migration")
+    @Argument(help: "Fields for migration, io")
     private var fields: [String] = []
     
     @Option(help: "The name of the model to use, if not defined in the migration name")
@@ -31,79 +82,30 @@ final class MigrationCommand: ParsableCommand {
     @Flag(name: .shortAndLong, help: "Generate an empty migration")
     private var empty = false
     
-    @Flag(name: .shortAndLong, help: "Use AutoMigrate class for migrations")
+    @Flag(name: [.customShort("m"), .long], help: "Use AutoMigrate class for migrations")
     private var autoMigrate = false
+    
+    @Flag(name: [.customShort("a"), .customLong("async")], help: "Create an async migration")
+    private var isAsync = false
+    
+    @Flag(name: .shortAndLong, help: "Use strings as opposed to field keys")
+    private var stringTypes = false
+    
+    @Flag(name: .long, help: "Skip model if migration type is Create.")
+    private var skipModel = false
 
     func run() throws {
-        let timestamp = getTimestamp()
-
-        if empty {
-            FileHandler.createFileWithContents(
-                MigrationGenerator.emptyMigration(name: name, timestamp: timestamp, autoMigrate: autoMigrate),
-                fileName:
-                "\(timestamp)_\(name).swift",
-                path: PathGenerator.load(path: .Migrations, name: "LOAD_CONFIGURATION_FILE")
-            )
-            
-            return
-        }
-
-        var parts: [String] = []
-        var migrationType: MigrationType = .Unknown
-        
-        if name.starts(with: "Add") {
-            parts = name.components(separatedBy: "To")
-            migrationType = .Add
-        } else if name.starts(with: "Remove") || name.starts(with: "Delete") {
-            parts = name.components(separatedBy: "From")
-            migrationType = .Delete
-        } else if name.starts(with: "Create") {
-            migrationType = .Create
-        }
-        
-        var modelName: String?
-
-        if migrationType == .Create {
-            modelName = name
-            modelName?.removeFirst(6)
-        } else if parts.isEmpty || parts.count == 1 {
-            modelName = model
-        } else {
-            modelName = parts.last
-            
-            if let _model = model {
-                modelName = _model
-            }
-        }
-
-        let migration = MigrationGenerator.generateFieldMigration(
+        let options = MigrationOptions(
             name: name,
-            model: modelName,
             fields: fields,
-            timestamp: timestamp,
-            type: migrationType,
-            autoMigrate: autoMigrate
+            model: model,
+            isAutoMigrate: autoMigrate,
+            isAsync: isAsync,
+            stringTypes: stringTypes,
+            isEmpty: empty,
+            skipModel: skipModel
         )
 
-        FileHandler.createFileWithContents(
-            migration,
-            fileName: "\(timestamp)_\(name).swift",
-            path: PathGenerator.load(path: .Migrations, name: "MISSING_NAME")
-        )
-        
-        // TODO: Add/Remove field key from model class.
-        if migrationType == .Add {
-            FileHandler.addFieldKeyToFile(
-                folder: PathGenerator.load(path: .Model, name: "MISSING_NAME"),
-                fileName: modelName ?? "UNKNOWN",
-                fields: fields
-            )
-        } else if migrationType == .Delete {
-            FileHandler.removeFieldKeyFromFile(
-                folder: PathGenerator.load(path: .Model, name: "MISSING_NAME"),
-                fileName: modelName ?? "UNKNOWN",
-                fields: fields.map { $0.components(separatedBy: ":").first ?? "UNKNOWN_FIELD" }
-            )
-        }
+        MigrationLoader.loadAll(for: options)
     }
 }

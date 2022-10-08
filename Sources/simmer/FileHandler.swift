@@ -15,12 +15,9 @@ final class FileHandler {
         path += "/\(model.toModelCase())/\(fileName).leaf"
 
         if FileManager.default.fileExists(atPath: path) {
-            print("File \(fileName) already exists")
 
             if displayIfConflicting {
-                print("\nWould-be contents of \(fileName)")
-                print(contents)
-                print("\n\n")
+                // TODO: log info
             }
 
             return
@@ -75,7 +72,6 @@ final class FileHandler {
     }
     
     static func fetchDefaultFile(_ file: String) -> String {
-        print(Bundle.module.url(forResource: "DefaultFiles/\(file)", withExtension: ".txt") ?? "Invalid resource")
         guard let url = Bundle.module.url(forResource: "DefaultFiles/\(file)", withExtension: ".txt"), let contents = try? String(contentsOfFile: url.path) else {
             PrettyLogger.error("Cannot load contents of file \(file), this is a problem with Simmer, please report it at: https://github.com/bhaze31/simmer")
             exit(0)

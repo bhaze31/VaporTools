@@ -17,17 +17,11 @@ struct Simmer: ParsableCommand {
         """,
         subcommands: [
             InitiateCommand.self,
-            ScaffoldCommand.self,
             GenerateCommand.self
         ]
     )
 
     init() {}
 }
-
-// subcommands to add bak [
-//     ManualCommand.self,
-//     AuthenticationCommand.self
-// ]
 
 Simmer.main()

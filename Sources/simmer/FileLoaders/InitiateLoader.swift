@@ -183,7 +183,7 @@ final class InitiateLoader {
             }
             
             appConfiguration = appConfiguration.replacingOccurrences(of: "::fluent::", with: dbConfiguration)
-            appConfiguration = appConfiguration.replacingOccurrences(of: "::sessions::", with: "app.sessions.use(.fluent)\n\t\tapp.middleware.use(app.sessions.middleware)")
+            appConfiguration = appConfiguration.replacingOccurrences(of: "::sessions::", with: "app.sessions.use(.fluent)\n\tapp.middleware.use(app.sessions.middleware)")
         } else {
             appConfiguration = appConfiguration.replacingOccurrences(of: "::fluent::", with: "")
             appConfiguration = appConfiguration.replacingOccurrences(of: "::sessions::", with: "app.middleware.use(app.sessions.middleware)")
@@ -193,7 +193,7 @@ final class InitiateLoader {
             let leafConfig = """
             app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
             
-            \t\tapp.views.use(.leaf)
+            \tapp.views.use(.leaf)
             """
             
             appConfiguration = appConfiguration.replacingOccurrences(of: "::leaf::", with: leafConfig)
@@ -206,7 +206,7 @@ final class InitiateLoader {
         if packageData.jwt {
             imports.append("import JWT")
             
-            appConfiguration = appConfiguration.replacingOccurrences(of: "::jwt::", with: "try app.jwt.signers.use(.rs256(key: .private(pem: Environment.privateKey)), kid: \"private\")\n\t\ttry app.jwt.signers.use(.rs256(key: .public(pem: Environment.publicKey)), kid: \"public\")")          
+            appConfiguration = appConfiguration.replacingOccurrences(of: "::jwt::", with: "try app.jwt.signers.use(.rs256(key: .private(pem: Environment.privateKey)), kid: \"private\")\n\ttry app.jwt.signers.use(.rs256(key: .public(pem: Environment.publicKey)), kid: \"public\")")          
         } else {
             appConfiguration = appConfiguration.replacingOccurrences(of: "::jwt::", with: "")
         }
@@ -241,7 +241,7 @@ final class InitiateLoader {
         FileHandler.createFolderUnlessExists(PathGenerator.load(path: .Controller, name: name))
         FileHandler.createFolderUnlessExists(PathGenerator.load(path: .Migrations, name: name))
         FileHandler.createFolderUnlessExists(PathGenerator.load(path: .Middleware, name: name))
-        FileHandler.createFolderUnlessExists(PathGenerator.load(path: .Views, name: name))
+        FileHandler.createFileWithContents(FileHandler.fetchDefaultFile("HomeView"), fileName: "index.leaf", path: PathGenerator.load(path: .Views, name: name))
         FileHandler.createFolderUnlessExists(PathGenerator.load(path: .Model, name: name))
     }
 }

@@ -1,7 +1,5 @@
 import Foundation
 
-var validFieldTypes = ["string", "int", "double", "bool", "dict", "date"]
-
 func getTimestamp() -> String {
     let formatter = DateFormatter()
     formatter.dateFormat = "YYYYMMddHHmmssSSS"

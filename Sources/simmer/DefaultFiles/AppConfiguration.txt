@@ -27,6 +27,5 @@ public func configure(_ app: Application) throws {
     
     // Routes information
     try routes(app)
-    
 }
 

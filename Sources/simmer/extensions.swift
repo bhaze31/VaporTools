@@ -58,4 +58,8 @@ extension String {
             return $0 + String($1).lowercased()
         }
     }
+    
+    func swap(from: String, to: String) -> String {
+        self.replacingOccurrences(of: from, with: to)
+    }
 }

@@ -54,4 +54,7 @@ app is bootstrapped by the simmer initiate command.
 
 ## Tests
 
+---
 
+# Development
+To be able to run in your own project without installing through homebrew, you can run `swift run build --configuration release` and then copy the output into your path.

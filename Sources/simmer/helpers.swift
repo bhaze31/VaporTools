@@ -1,3 +1,4 @@
+// TODO: This file is unwieldy, move items to better folders
 import Foundation
 
 func getTimestamp() -> String {
@@ -6,11 +7,14 @@ func getTimestamp() -> String {
     return formatter.string(from: Date())
 }
 
+let validTypes = ["string", "int", "double", "bool", "dict", "date", "any", "reference"]
+
 struct Field {
     var name: String
     var type: String
     var isOptional: Bool = false
     var isArray: Bool = false
+    var isReference: Bool = false
     
     // For dictionary items
     var keyType: String?
@@ -20,6 +24,7 @@ struct Field {
         var split = field.components(separatedBy: ":")
         
         if split.count != 2 && split.count != 3 {
+            // By defualt, we set the field to be a string if we only get a name
             split = [split[0], "string"]
         }
         
@@ -27,7 +32,6 @@ struct Field {
         
         name = split[0]
         type = split[1]
-        isArray = false
         
         if type.starts(with: "dict") {
             let splitType = type.components(separatedBy: "|")
@@ -35,6 +39,7 @@ struct Field {
             type = splitType[0]
 
             if splitType.count != 3 {
+                // If we cannot split the appropriate dict|key|value, then default to string -> any
                 keyType = "String"
                 valueType = "Any"
             } else {
@@ -52,6 +57,8 @@ struct Field {
                 isArray = false
             } else if ["a", "array", "multi"].contains(splitType[1]) {
                 isArray = true
+            } else if ["r", "references", "foreign"].contains(splitType[1]) {
+                isReference = true
             }
         }
     }
@@ -109,6 +116,61 @@ struct Field {
         \(spaces)var \(name): \(getSwiftType())
         """
     }
+    
+    func migrationField(options: MigrationOptions) -> String {
+        if options.migrationType == .Delete {
+            return ".deleteField(\(options.stringTypes ? "\"\(name)\"" : "\(options.model).FieldKeys.\(name)"))"
+        }
+
+        var field = ".field("
+        if options.stringTypes {
+            field.append("\"\(name)\", ")
+        } else {
+            // TODO: Use the appropriate model name
+            field.append("\(options.model).FieldKeys.\(name), ")
+        }
+        
+        // TODO: Handle array/dict types
+        field.append(".\(type)")
+        
+        if isReference {
+            field.append(", .references(\(name.capitalized).schema)")
+        }
+        
+        if isOptional {
+            field.append(")")
+        } else {
+            field.append(", .required)")
+        }
+        
+        return field
+    }
+    
+    func revertField(options: MigrationOptions) -> String {
+        if options.migrationType != .Delete {
+            return ".deleteField(\(options.stringTypes ? "\"\(name)\"" : "\(options.model).FieldKeys.\(name)"))"
+        }
+
+        var field = ".field("
+        if options.stringTypes {
+            field.append("\"\(name)\", ")
+        } else {
+            // TODO: Use the appropriate model name
+            field.append("\(options.model).FieldKeys.\(name), ")
+        }
+        
+        // TODO: Handle array/dict types
+        field.append(".\(type)")
+        
+        if isReference {
+            field.append(", .references(\(name.capitalized).schema)")
+        }
+        
+        // We can never have a required field be defined in the revert, as there would be an issue with missing data
+        field.append(")")
+        
+        return field
+    }
 }
 
 func generateModelInitializer(fields: [Field]) -> String {
@@ -161,8 +223,6 @@ func generateFields(fields: [Field], hasTimestamps: Bool = true) -> String {
 
     return modelFields
 }
-
-let validTypes = ["string", "int", "double", "bool", "dict", "date", "any"]
 
 func extractFieldsData(fields fs: [String], failOnError: Bool = false) -> [Field] {
     var fields = [Field]()

@@ -1,0 +1,16 @@
+import Vapor
+import Fluent
+
+final class ::model_name::: Model {
+    static let schema: String = ::schema::
+    
+    struct Keys {
+        ::keys::
+    }
+    
+    ::model_id::
+    ::model_fields::
+    ::timestamps::
+    
+    init() {}
+}

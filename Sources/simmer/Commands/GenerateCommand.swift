@@ -8,6 +8,7 @@ final class GenerateCommand: ParsableCommand {
         abstract: "Tool used to generate Controllers/Models/Forms/Resources/Migrations",
         subcommands: [
             MigrationCommand.self,
+            ModelCommand.self,
         ]
     )
 }

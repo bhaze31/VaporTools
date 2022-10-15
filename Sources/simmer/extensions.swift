@@ -59,7 +59,7 @@ extension String {
         }
     }
     
-    func swap(from: String, to: String) -> String {
+    func swap(_ from: String, to: String) -> String {
         self.replacingOccurrences(of: from, with: to)
     }
 }

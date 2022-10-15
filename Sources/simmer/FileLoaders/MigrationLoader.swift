@@ -34,12 +34,12 @@ final class MigrationLoader {
         let revertSignature = getRevertSignature(useAutoMigration: options.isAutoMigrate, useAsyncMigration: options.isAsync) + "}"
         
         let defaultMigration = FileHandler.fetchDefaultFile("Migration")
-            .swap(from: "::imports::", to: imports)
-            .swap(from: "::migration_type::", to: migrationType)
-            .swap(from: "::migration_name::", to: migrationName)
-            .swap(from: "::names::", to: nameInfo)
-            .swap(from: "::migrate::", to: migrationSignature)
-            .swap(from: "::revert::", to: revertSignature)
+            .swap("::imports::", to: imports)
+            .swap("::migration_type::", to: migrationType)
+            .swap("::migration_name::", to: migrationName)
+            .swap("::names::", to: nameInfo)
+            .swap("::migrate::", to: migrationSignature)
+            .swap("::revert::", to: revertSignature)
         
         print(defaultMigration)
     }

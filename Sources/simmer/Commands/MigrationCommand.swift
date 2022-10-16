@@ -8,6 +8,12 @@ enum MigrationType {
     case Unknown
 }
 
+struct MigrationModelOptions {
+    var softDelete: Bool
+    var skipTimestamps: Bool
+    var schemaName: String?
+}
+
 struct MigrationOptions {
     var name: String
     var timestamp: String
@@ -19,8 +25,10 @@ struct MigrationOptions {
     var stringTypes: Bool
     var isEmpty: Bool
     var skipModel: Bool
+    var modelOptions: MigrationModelOptions
+    var customIdName: String?
     
-    init(name: String, fields: [String], model: String?, isAutoMigrate: Bool, isAsync: Bool, stringTypes: Bool, isEmpty: Bool, skipModel: Bool) {
+    init(name: String, fields: [String], model: String?, isAutoMigrate: Bool, isAsync: Bool, stringTypes: Bool, isEmpty: Bool, skipModel: Bool, modelOptions: MigrationModelOptions) {
         self.fields = fields
         
         if name.starts(with: "Add") {
@@ -63,6 +71,8 @@ struct MigrationOptions {
         self.isEmpty = isEmpty
         self.skipModel = skipModel
         
+        self.modelOptions = modelOptions
+        
         if let field = extractDefaultField(name: name) {
             self.fields.append(field)
         }
@@ -97,7 +107,7 @@ final class MigrationCommand: ParsableCommand {
         """
     )
 
-    @Argument(help: "The name of the migration to generate.")
+    @Argument(help: "The name of the migration to generate")
     private var name: String
     
     @Argument(help: "Fields for migration, io")
@@ -118,10 +128,17 @@ final class MigrationCommand: ParsableCommand {
     @Flag(name: .shortAndLong, help: "Use strings as opposed to field keys")
     private var stringTypes = false
     
-    @Flag(name: .long, help: "Skip model if migration type is Create.")
+    @Flag(name: .long, help: "Skip model if migration type is Create")
     private var skipModel = false
+    
+    @Flag(name: [.long, .customShort("d")], help: "If creating a model, use soft delete for this model. Otherwise ignored")
+     private var softDelete = false
 
+    @Flag(name: [.long, .customShort("t")], help: "Skip timestamps if the creating a model. Otherwise ignored")
+    private var skipTimestamps = false
+    
     func run() throws {
+        let modelOptions = MigrationModelOptions(softDelete: softDelete, skipTimestamps: skipTimestamps)
         let options = MigrationOptions(
             name: name,
             fields: fields,
@@ -130,7 +147,8 @@ final class MigrationCommand: ParsableCommand {
             isAsync: isAsync,
             stringTypes: stringTypes,
             isEmpty: empty,
-            skipModel: skipModel
+            skipModel: skipModel,
+            modelOptions: modelOptions
         )
 
         MigrationLoader.loadAll(for: options)

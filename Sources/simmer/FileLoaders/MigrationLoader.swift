@@ -67,7 +67,15 @@ final class MigrationLoader {
     }
     
     static func createModel(_ options: MigrationOptions) {
+        let fields = validateFields(fields: options.fields)
+        let modelOptions = ModelOptions(
+            name: options.model,
+            fields: fields,
+            softDelete: options.modelOptions.softDelete,
+            skipTimestamps: options.modelOptions.skipTimestamps
+        )
         
+        ModelLoader.generateModel(options: modelOptions)
     }
     
     static func getInitialMigrationFile(options: MigrationOptions) -> String {

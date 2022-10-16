@@ -1,9 +1,9 @@
 ::imports::
 
 final class ::migration_name::: ::migration_type:: {
-    ::names::
+::names::
     
-    ::migrate::
+::migrate::
 
-    ::revert::
+::revert::
 }

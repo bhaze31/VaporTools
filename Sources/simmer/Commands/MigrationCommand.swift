@@ -13,7 +13,7 @@ struct MigrationOptions {
     var timestamp: String
     var migrationType: MigrationType
     var fields: [String]
-    var model: String?
+    var model: String
     var isAutoMigrate: Bool
     var isAsync: Bool
     var stringTypes: Bool
@@ -21,36 +21,63 @@ struct MigrationOptions {
     var skipModel: Bool
     
     init(name: String, fields: [String], model: String?, isAutoMigrate: Bool, isAsync: Bool, stringTypes: Bool, isEmpty: Bool, skipModel: Bool) {
+        self.fields = fields
+        
         if name.starts(with: "Add") {
             let parts = name.components(separatedBy: "To")
             self.migrationType = .Add
-            self.model = parts.last
+            self.model = parts.last!
+            
+            if parts.count == 2, var field = parts.first {
+                field.removeFirst(3)
+                self.fields.append("\(field.lowercased()):string")
+            }
         } else if name.starts(with: "Remove") || name.starts(with: "Delete") {
             let parts = name.components(separatedBy: "From")
             migrationType = .Delete
-            self.model = parts.last
+            self.model = parts.last!
+            
+            if parts.count == 2, var field = parts.first {
+                field.removeFirst(6)
+                self.fields.append("\(field.lowercased()):string")
+            }
         } else if name.starts(with: "Create") {
             migrationType = .Create
             
             self.model = name
-            self.model?.removeFirst(6)
+            self.model.removeFirst(6)
         } else {
             migrationType = .Unknown
             self.model = name
         }
         
-        if model != nil {
-            self.model = model
+        if let _model = model {
+            self.model = _model
         }
         
         self.timestamp = getTimestamp()
         self.name = name
-        self.fields = fields
         self.isAutoMigrate = isAutoMigrate
         self.isAsync = isAsync
         self.stringTypes = stringTypes
         self.isEmpty = isEmpty
         self.skipModel = skipModel
+        
+        if let field = extractDefaultField(name: name) {
+            self.fields.append(field)
+        }
+    }
+    
+    func extractDefaultField(name: String) -> String? {
+        if name.starts(with: "Add") {
+            
+        } else if name.starts(with: "Delete") || name.starts(with: "Remove") {
+            
+        } else if name.starts(with: "Create") {
+            
+        }
+        
+        return nil
     }
 }
 

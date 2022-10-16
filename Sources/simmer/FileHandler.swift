@@ -32,21 +32,6 @@ final class FileHandler {
         )
     }
 
-    static func createMainView() {
-        let path = PathGenerator.load(path: .Views)
-        createFolderUnlessExists(path)
-
-        if !FileHandler.fileExists(fileName: "main.leaf", path: PathGenerator.load(path: .Views)) {
-            let mainView = ViewsGenerator.generateMainView()
-            
-            FileManager.default.createFile(
-                atPath: path + "/main.leaf",
-                contents: mainView.data(using: .utf8),
-                attributes: [:]
-            )
-        }
-    }
-
     static func createFileWithContents(_ contents: String, fileName: String, path: String, displayIfConflicting: Bool = false, overwriteFile: Bool = false) {
         createFolderUnlessExists(path)
 

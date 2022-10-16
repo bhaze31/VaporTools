@@ -17,7 +17,8 @@ struct Simmer: ParsableCommand {
         """,
         subcommands: [
             InitiateCommand.self,
-            GenerateCommand.self
+            GenerateCommand.self,
+            ScaffoldCommand.self
         ]
     )
 

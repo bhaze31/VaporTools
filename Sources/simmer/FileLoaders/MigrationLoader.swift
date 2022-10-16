@@ -48,8 +48,8 @@ final class MigrationLoader {
         revert += "\n\t}"
 
         let migration = getInitialMigrationFile(options: options)
-            .swap(from: "::migrate::", to: migrate)
-            .swap(from: "::revert::", to: revert)
+            .swap("::migrate::", to: migrate)
+            .swap("::revert::", to: revert)
 
         print(migration)
 	}
@@ -60,8 +60,8 @@ final class MigrationLoader {
         let revertSignature = getRevertSignature(useAutoMigration: options.isAutoMigrate, useAsyncMigration: options.isAsync) + "}"
         
         let migration = getInitialMigrationFile(options: options)
-            .swap(from: "::migrate::", to: migrationSignature)
-            .swap(from: "::revert::", to: revertSignature)
+            .swap("::migrate::", to: migrationSignature)
+            .swap("::revert::", to: revertSignature)
         
         print(migration)
     }
@@ -82,11 +82,12 @@ final class MigrationLoader {
         
         let nameInfo = getNames(useAutoMigration: options.isAutoMigrate)
         
+
         let migration = FileHandler.fetchDefaultFile("Migration")
-            .swap(from: "::imports::", to: imports)
-            .swap(from: "::migration_type::", to: migrationType)
-            .swap(from: "::migration_name::", to: migrationName)
-            .swap(from: "::names::", to: nameInfo)
+            .swap("::imports::", to: imports)
+            .swap("::migration_type::", to: migrationType)
+            .swap("::migration_name::", to: migrationName)
+            .swap("::names::", to: nameInfo)
         
         return migration
     }

@@ -7,6 +7,16 @@ func getTimestamp() -> String {
     return formatter.string(from: Date())
 }
 
+func validateFields(fields: [String]) -> [Field] {
+    var parsed: [Field] = []
+    
+    for field in fields {
+        parsed.append(Field(field: field))
+    }
+    
+    return parsed
+}
+
 let validTypes = ["string", "int", "double", "bool", "dict", "date", "any", "reference"]
 
 struct Field {

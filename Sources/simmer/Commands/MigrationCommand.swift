@@ -78,6 +78,21 @@ struct MigrationOptions {
         }
     }
     
+    init(name: String, fields: [String], skipTimestamps: Bool, softDelete: Bool) {
+        self.name = "Create\(name.toCamelCase().uppercased())"
+        self.migrationType = .Create
+        self.fields = fields
+        self.model = name
+        self.isAutoMigrate = true
+        self.isAsync = true
+        self.stringTypes = false
+        self.isEmpty = false
+        self.timestamp = getTimestamp()
+        self.modelOptions = MigrationModelOptions(softDelete: softDelete, skipTimestamps: skipTimestamps)
+        self.skipModel = false
+        self.timestamp = getTimestamp()
+    }
+    
     func extractDefaultField(name: String) -> String? {
         if name.starts(with: "Add") {
             

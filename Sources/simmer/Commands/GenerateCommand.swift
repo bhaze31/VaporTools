@@ -9,6 +9,7 @@ final class GenerateCommand: ParsableCommand {
         subcommands: [
             MigrationCommand.self,
             ModelCommand.self,
+            ControllerCommand.self
         ]
     )
 }

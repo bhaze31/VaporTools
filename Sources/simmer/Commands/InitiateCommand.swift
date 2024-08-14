@@ -6,8 +6,8 @@ final class InitiateCommand: ParsableCommand {
     static let configuration = CommandConfiguration(
         abstract: """
         Initiate Vapor app to simmer configuration.
-        
-        By default, this generates a Vapor application with PostgreSQL, Leaf, JWT key signing, and Redis. It also adds extensions for Environment to easily extract the data for all of these configurations.
+
+        By default, this generates a Vapor application with Fluent, SQLite, Leaf, JWT key signing, and Redis. SQLite can be overwritten to use  It also adds extensions for Environment to easily extract the data for all of these configurations.
 
         If you wish to generate a project with a different database or without some of these configurations, there are flags for this. However, other commands may rely on the fact that the configuraiton was generated with these defaults, so please use the sensible flags for all other commands.
 
@@ -15,55 +15,48 @@ final class InitiateCommand: ParsableCommand {
         """
     )
 
-    @Option(name: [.customShort("a"), .customLong("app")], help: "Name of application to generate.")
+    @Option(name: [.customShort("a"), .customLong("app")], help: "Name of application to generate. Defaults to 'App'")
     private var name: String = "App"
 
-    @Flag(name: [.customShort("m"), .customLong("auto-migrator")], help: "Use auto-migrator by default.")
-    private var useAutoMigrator: Bool = false
-    
     @Flag(help: "Display contents of conflicting files")
     private var showContents = false
-    
-    @Flag(name: .customLong("postgres"), help: "Add PostgreSQL")
-    private var usePostgres: Bool = false
-    
-    @Flag(name: .customLong("sqlite"), help: "Add SQLite")
-    private var useSQLite: Bool = false
-    
-    @Flag(name: .customLong("mysql"), help: "Add MySQL")
-    private var useMySQL: Bool = false
-    
-    @Flag(name: .customLong("mongodb"), help: "Add MongoDB")
-    private var useMongoDB: Bool = false
 
-    @Flag(name: .customLong("jwt"), help: "Add JWT support")
-    private var useJWT: Bool = false
+    @Option(name: [.customLong("db")], help: "The database to be used instead of sqlite, can be one of postgres, mysql, or mongodb")
+    private var database: String = "sqlite"
 
-    @Flag(name: [.customShort("l"), .customLong("leaf")], help: "Add Leaf for templating.")
-    private var useLeaf: Bool = false
-    
-    @Flag(name: [.customShort("r"), .customLong("redis")], help: "Add Redis configuration.")
-    private var useRedis: Bool = false
-    
+    @Flag(name: .customLong("jwt"), inversion: .prefixedNo, help: "Add JWT support. Defaults to true")
+    private var useJWT: Bool = true
+
+    @Flag(name: [.customShort("r"), .customLong("redis")], inversion: .prefixedNo, help: "Add Redis configuration. Defaults to true")
+    private var useRedis: Bool = true
+
     @Option(name: [.customShort("p"), .customLong("port")], help: "Default port to listen on.")
     private var defaultPort: Int?
 
     func run() throws {
         PrettyLogger.generate("Initiating Vapor application \(name)")
-        
+
         FileHandler.createFolderUnlessExists(name, isFatal: true)
-        
+
         FileManager.default.changeCurrentDirectoryPath("./\(name)")
-        
+
+        let databaseName: DatabasePackage
+
+        switch database.lowercased() {
+            case "mysql":
+                databaseName = .MySQL
+            case "postgres", "postgresql":
+                databaseName = .PostgreSQL
+            case "mongo", "mongodb":
+                databaseName = .MongoDB
+            default:
+                databaseName = .SQLite
+        }
+
         let packageData = InitialPackageData(
-            postgres: usePostgres,
-            mysql: useMySQL,
-            mongodb: useMongoDB,
-            sqlite: useSQLite,
+            database: databaseName,
             redis: useRedis,
-            leaf: useLeaf,
-            jwt: useJWT,
-            autoMigrator: useAutoMigrator
+            jwt: useJWT
         )
 
         InitiateLoader.loadAll(for: name, packageData: packageData)

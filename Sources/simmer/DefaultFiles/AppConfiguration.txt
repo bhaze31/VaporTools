@@ -1,30 +1,35 @@
+import Vapor
+import AutoMigrator
+import Fluent
+import Leaf
 ::imports::
 
 // configures your application
-public func configure(_ app: Application) throws {
+public func configure(_ app: Application) async throws {
     app.http.server.configuration.port = ::port::
 
     // Leaf Views + Tags
-    ::leaf::
-    
+    app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
+
+    app.views.use(.leaf)
+
     // Database configurations
     ::fluent::
 
+    ::redis::
+
     // Session + Token information
     ::sessions::
-    
+
     ::jwt::
-    
-    // Queues information
-    ::redis::
-    
-    // Migrations
+
+    // Auto-Migration configuration
     ::migrations::
-    
+
     if !app.environment.isRelease {
-        let _ = app.autoMigrate()
+        let _ = try await app.autoMigrate()
     }
-    
+
     // Routes information
     try routes(app)
 }

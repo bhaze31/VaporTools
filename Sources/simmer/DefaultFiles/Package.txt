@@ -1,29 +1,53 @@
-// swift-tools-version:5.5
+// swift-tools-version:5.9
 import PackageDescription
 
 let package = Package(
     name: "::name::",
     platforms: [
-       .macOS(.v12)
+       .macOS(.v13)
     ],
     dependencies: [
-        ::packages::
+        // 💧 A server-side Swift web framework.
+        .package(url: "https://github.com/vapor/vapor.git", from: "4.0.0"),
+        // 🗄 An ORM for SQL and NoSQL databases.
+        .package(url: "https://github.com/vapor/fluent.git", from: "4.9.0"),
+        // 🍃 An expressive, performant, and extensible templating language built for Swift.
+        .package(url: "https://github.com/vapor/leaf.git", from: "4.3.0"),
+        // 🔵 Non-blocking, event-driven networking for Swift. Used for custom executors
+        .package(url: "https://github.com/apple/swift-nio.git", from: "2.65.0"),
+        // 🛠️ Handy utility for generating both view and json responses
+        .package(url: "https://github.com/bhaze31/FormattedResponse.git", from: "0.0.1"),
+        // 💽 Handy utility for automatically adding migrations to the migration queue
+        .package(url: "https://github.com/bhaze31/AutoMigrator.git", from: "0.0.4"),
+::packages::
     ],
     targets: [
-        .target(
+        .executableTarget(
             name: "::name::",
             dependencies: [
-                ::dependencies::
+                .product(name: "Vapor", package: "vapor"),
+                .product(name: "Fluent", package: "fluent"),
+                .product(name: "Leaf", package: "leaf"),
+                .product(name: "NIOCore", package: "swift-nio"),
+                .product(name: "NIOPosix", package: "swift-nio"),
+                .product(name: "FormattedResponse", package: "FormattedResponse"),
+                .product(name: "AutoMigrator", package: "AutoMigrator"),
+::dependencies::
             ],
-            swiftSettings: [
-                .unsafeFlags(["-cross-module-optimization"], .when(configuration: .release))
-            ]
+            swiftSettings: swiftSettings
         ),
-        .executableTarget(name: "Run", dependencies: [.target(name: "::name::")]),
-        .testTarget(name: "::name::Tests", dependencies: [
-            .target(name: "::name::"),
-            .product(name: "XCTVapor", package: "vapor"),
-        ])
+        .testTarget(
+            name: "::name::Tests",
+            dependencies: [
+                .target(name: "::name::"),
+                .product(name: "XCTVapor", package: "vapor"),
+            ],
+            swiftSettings: swiftSettings
+        )
     ]
 )
 
+var swiftSettings: [SwiftSetting] { [
+    .enableUpcomingFeature("DisableOutwardActorInference"),
+    .enableExperimentalFeature("StrictConcurrency"),
+] }

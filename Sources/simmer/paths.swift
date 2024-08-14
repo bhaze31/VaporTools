@@ -1,12 +1,8 @@
 import Foundation
 
-#if DEBUG
-    let SOURCE_BASE = "Source"
-    let TEST_BASE = "Test"
-#else
-    let SOURCE_BASE = "Sources"
-    let TEST_BASE = "Tests"
-#endif
+let SOURCE_BASE = "Sources"
+let TEST_BASE = "Tests"
+
 
 final class PathGenerator {
     enum Pathname: String {

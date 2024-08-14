@@ -1,4 +1,11 @@
 import Foundation
+import Vapor
+
+extension Application {
+    func loadInduction() {
+        self.commands.use(InductionGroup(), as: "induction")
+    }
+}
 
 extension String {
     func toCamelCase() -> String {

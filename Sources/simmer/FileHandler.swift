@@ -15,9 +15,9 @@ final class FileHandler {
         path += "/\(model.toModelCase())/\(fileName).leaf"
 
         if FileManager.default.fileExists(atPath: path) {
-
             if displayIfConflicting {
                 // TODO: log info
+                print("File already exists at \(path), exiting")
             }
 
             return

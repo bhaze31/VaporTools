@@ -1,4 +1,4 @@
-// swift-tools-version:5.5
+// swift-tools-version:5.7
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -10,13 +10,15 @@ let package = Package(
         .executable(name: "simmer", targets: ["simmer"])
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-argument-parser", from: "1.1.4"),
+        .package(url: "https://github.com/vapor/vapor.git", from: "4.12.0"),
+        .package(url: "https://github.com/vapor/console-kit", from: "4.12.0")
     ],
     targets: [
         .executableTarget(
             name: "simmer",
             dependencies: [
-              .product(name: "ArgumentParser", package: "swift-argument-parser")
+                .product(name: "Vapor", package: "vapor"),
+                .product(name: "ConsoleKit", package: "console-kit")
             ],
             resources: [.copy("DefaultFiles")]),
         .testTarget(

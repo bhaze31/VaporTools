@@ -21,6 +21,19 @@ enum DatabasePackage: String {
     var baseVersion: String {
         self == .MongoDB ? "1.0.0" : "4.0.0"
     }
+
+    var driverVersion: String {
+        switch self {
+        case .SQLite:
+            return "FluentSQLiteDriver"
+        case .PostgreSQL:
+            return "FluentPostgresDriver"
+        case .MySQL:
+            return "FluentMySQLDriver"
+        case .MongoDB:
+            return "FluentMongoDriver"
+        }
+    }
 }
 
 struct InitialPackageData {
@@ -81,38 +94,56 @@ final class InitiateLoader {
 
         appConfiguration = appConfiguration.replacingOccurrences(of: "::port::", with: "\(packageData.port ?? 3162)")
 
-        var imports: [String] = []
+        var imports: [String] = ["import \(packageData.database.driverVersion)"]
 
+        switch packageData.database {
+        case .SQLite:
+            appConfiguration = appConfiguration.replacingOccurrences(of: "::fluent::", with: "app.databases.use(.sqlite(.file(\"db.sqlite\")), as: .sqlite)")
+        case .MongoDB:
+            appConfiguration = appConfiguration.replacingOccurrences(of: "::fluent::", with: """
+            try app.databases.use(.mongo(connectionString: Environment.databaseUrl), as: .mongo)
+            """)
+        case .MySQL:
+            appConfiguration = appConfiguration.replacingOccurrences(of: "::fluent::", with: """
+            var tls = TLSConfiguration.makeClientConfiguration()
+            tls.certificateVerification = .none
 
-//         var dbConfiguration: String = ""
-//             if packageData.postgres {
-//                 imports.append("import FluentPostgresDriver")
-//                 dbConfiguration = FileHandler.fetchDefaultFile("FluentPostgresConfiguration")
-//             }
-//
-//             if packageData.sqlite {
-//                 imports.append("import FluentSQLiteDriver")
-//             }
-//
-//             if packageData.mongodb {
-//                 imports.append("import FluentMongoDriver")
-//             }
-//
-//             if packageData.mysql {
-//                 imports.append("import FluentMySQLDriver")
-//             }
-//
-//             appConfiguration = appConfiguration.replacingOccurrences(of: "::fluent::", with: dbConfiguration)
-//             appConfiguration = appConfiguration.replacingOccurrences(of: "::sessions::", with: "app.sessions.use(.fluent)\n    app.middleware.use(app.sessions.middleware)")
-//         } else {
-//             appConfiguration = appConfiguration.replacingOccurrences(of: "::fluent::", with: "")
-//             appConfiguration = appConfiguration.replacingOccurrences(of: "::sessions::", with: "app.middleware.use(app.sessions.middleware)")
-//         }
+            app.databases.use(
+                .mysql(
+                    hostname: Environment.dbHost,
+                    username: Environment.dbUsername,
+                    password: Environment.dbPassword,
+                    database: Environment.dbName,
+                    tlsConfiguration: tls
+                ),
+                as: .mysql
+            )
+            """)
+        case .PostgreSQL:
+            appConfiguration = appConfiguration.replacingOccurrences(of: "::fluent::", with: """
+            app.databases.use(
+                .postgres(
+                    configuration: .init(
+                        hostname: Environment.dbHost,
+                        username: Environment.dbUsername,
+                        password: Environment.dbPassword,
+                        database: Environment.dbName,
+                        tls: .disable
+                    )
+                ),
+                as: .psql
+            )
+            """)
+
+        }
 
         if packageData.jwt {
             imports.append("import JWT")
 
-            appConfiguration = appConfiguration.replacingOccurrences(of: "::jwt::", with: "try app.jwt.signers.use(.rs256(key: .private(pem: Environment.privateKey)), kid: \"private\")\n    try app.jwt.signers.use(.rs256(key: .public(pem: Environment.publicKey)), kid: \"public\")")
+            appConfiguration = appConfiguration.replacingOccurrences(of: "::jwt::", with: """
+            try app.jwt.signers.use(.rs256(key: .private(pem: Environment.privateKey)), kid: \"private\")
+            try app.jwt.signers.use(.rs256(key: .public(pem: Environment.publicKey)), kid: \"public\")
+            """)
         } else {
             appConfiguration = appConfiguration.replacingOccurrences(of: "::jwt::", with: "")
         }
@@ -120,9 +151,13 @@ final class InitiateLoader {
         if packageData.redis {
             imports.append("import Redis")
 
-            appConfiguration = appConfiguration.replacingOccurrences(of: "::redis::", with: "app.redis.configuration = try RedisConfiguration(hostname: Environment.redisURL.absoluteString)")
+            appConfiguration = appConfiguration.replacingOccurrences(of: "::redis::", with: "app.redis.configuration = try RedisConfiguration(url: Environment.redisUrl)")
+
+            appConfiguration = appConfiguration.replacingOccurrences(of: "::sessions::", with: "app.sessions.use(.redis)")
         } else {
             appConfiguration = appConfiguration.replacingOccurrences(of: "::redis::", with: "")
+
+            appConfiguration = appConfiguration.replacingOccurrences(of: "::sessions::", with: "")
         }
 
         let autoMigrationConfiguration = "app.loadAutoMigrations(migrationsPath: \"Sources/\(name)/Migrations\", namespace: \"\(name)\", fatalErrorOnInvalidClass: true)"
@@ -136,10 +171,20 @@ final class InitiateLoader {
     static func loadDotEnv(_ name: String, packageData: InitialPackageData) {
         var dotEnv = FileHandler.fetchDefaultFile("DotEnv")
 
-        // TODO: Configure MySQL and MongoDB drivers as well
-        let postgresConfig = packageData.database == .PostgreSQL ? "DATABASE_URL=postgres://\(name.lowercased()):\(name.lowercased())@localhost:5432/\(name.lowercased())" : ""
-
-        dotEnv = dotEnv.replacingOccurrences(of: "::PG::", with: postgresConfig)
+        if packageData.database == .MongoDB {
+            // We use a connection string here, as opposed to using host/user/pass
+            dotEnv = dotEnv.replacingOccurrences(of: "::DB::", with: "DATABASE_URL=mongodb://vapor:vapor@localhost:27017/vapor")
+        } else if packageData.database == .PostgreSQL || packageData.database == .MySQL {
+            dotEnv = dotEnv.replacingOccurrences(of: "::DB::", with: """
+            DATABASE_HOST=localhost
+            DATABASE_NAME=vapor
+            DATABASE_USER=vapor
+            DATABASE_PASSWORD=password
+            """)
+        } else {
+            // SQLite doesn't need the database configuration, so just remove it entirely
+            dotEnv = dotEnv.replacingOccurrences(of: "::DB::", with: "")
+        }
 
         if packageData.jwt {
             let signingKey = "SIGNING_KEY=LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFcEFJQkFBS0NBUUVBdXBlckl5OUlxb1hORWhqRjlXT0FGcUx4V3RXS2M1TnhvalZiR0VHMjZrS2VWcU1yCklNRWZhd2MybUJXKzVxNDE5cmZBc29IR3NhVXFTcVFyNThBVG5rOFM5TGxNUUVXOTBaejRjRmdaLzhZcENmZloKbEhTYmlLSlZpSGw1STdOSWlXdjRDazExS2xYRWN3cktzTmlMRWg1NHZRYjV4ZG95UjNtWFk3bnZPV1dYVWFWSQpmeERXRWRidndDMlNSTW9jNTFORDd4eVFvMWhPME5VNXREUUZubys0TThwUkN2Z1o0K0hBMDJ6em5aVEZBZXc4Cm9TNHd4ZDJ5VTUvd2g4R25TQm1zaXRtaTlyTDM2SzA2ZmNIbTMxUUhVQks0Q0FTc2FvMjRRYU9JWVltQzdUUkkKUjdkNVBvTE4vSkJRaVcxZy9ZcE5JK0VUTFMvbElzNDBxRXp4QXdJREFRQUJBb0lCQUFyV0VBeEZETFZLZS9SWApGL2YrUlV3TFBuVUYvYnBrajY3WjVtWnNPcEUwT1RuUzFBaGM3dFFxWVJOSUFBUXBqZHk4SXlhNnZxMUdhRVJaCmNHdFBEbFNkUnY2TFhGQkhQSlRWeHQvUFhnTXFvT3VCUjFPRnlocVBRdVJnR1pibkxJaytpZk1mT0hTeThtdXoKN3IyQ2RlRWhmK1dLYUNzRFZ2UXJyWTBQR1VOOTkzbUViV3ZWWlhOcmc3VnZRNVdOTnJVRHE1WEM1RHpacE11TwpLVEdTamZGZGFpa1VFTzQybm90VVlScEVEb2JaYVFPaFh0ZllVU3ZiN0hmb1RLNmJsNXB5OTVucWcxRktKMDBWClVZSzJ2TjhQV3dlZU11ZHBZUmlQaE9BblFpZmM0RWRHU2xSSVpPSVQ3a3h1TFV2QkNTbnRrTUlzdWNDb3lLbGIKblU2dWFBRUNnWUVBNDc5bjNtaDh2L1UzVmVjYlRlOEh2cDZ4SzVCWjE4ZVBZcmpTMktZRFBmYnN6UXU1YkZBagpyNVZTSDRYaC9GeFE0OWJ1cFRzZENOYy9LS3QvOEZrc2xMQTJlUDhLRDFuSmxZcHNWeHV4OEtzemVRSElnYlQwCmdnSnR5K2UrYlhKQS9keUJUQ3JTaE9ENEI0dEtkNGRvcmlOWkRFT3FSWnhHU2ZFQUpiM1h4Z0VDZ1lFQTBiMUwKVjRHYTNGaU9jTUVQZ2diZno4NllHWjUrUDgzTllxbm5iSUlJZElZdTJ4MXNYcGNUbHozUllpcmtYd3YvYW5LSQpIcVlGeVo1ZWUyaVQ2ODdJVCs4RlhmOFhNZllqRGpVTUhWeGxSek53ZFJXU2pSNXg3a2RDWmtDWVo4Nm9zZng3CmMrK0N6czBrZ3VNTWJKWDVFVnV3dklWeDNUWlhiSUZLVUdqTG53TUNnWUVBdG16bjkwZTh2VW5mWkNpMVAweTYKNkY1V3plMVhlYmI0ekh2OUw5cHllRnprdXkyci9lMkhXQ3FFV0ltMlJaMXdrYi9rOG1jU1Q3V1Nlckk4emJtdwpNdjJlOUhaZGlZUkRLMHh3a2FtMmMyKyswQ3UwZnVrQ2ZXMFNvNlRpYk9wNjBwMmcxL0RwSmRUSjk4a0VBaEJ0CnNpYlFPam10RndzaFpqTHNDazh4bWdFQ2dZQmxKOTdHZllPcThpc0F4cHdzSWhTZnJRdytqdXBrNjJVN1NLYU0KOXNvTktRcEFNNWlvcGtTVWxRUC9US0NJRnNsQkZhd0EzQ0crYzlzdHVlcGR1SVZ6eDl2VzBjam1GOGdnZWdVMQp3L0kwdk9Kb0ZkZHdxRlphalpQQXJUYlVHaC9TZCtzeXB6bDNkQWsvOXpGdXpZWXFrUVpVWmlmY2dQRDVMQUlqCmRlZCs4UUtCZ1FEZ3FPZ3RhdDJVa2Yya0pHOEdGZ21qR0xEbWlJeExNdHVoazdoNUtnYk14OXdpTG5ubEtod2EKSXNQOEdEOXVPQ1RkMXg2UXJwWTYxTTRFZHkyWVlDZUtPOEdMclBpejlnK0xObDlZc3Rrbld5b0FjWC9heW1kWApvdTRVSjl4WUhCUE1USDd2dnJzckVZU2FlMTljYXJtUmUxbmtuMUg0UjJzUjhRYzNQRzFXOUE9PQotLS0tLUVORCBSU0EgUFJJVkFURSBLRVktLS0tLQo="
@@ -157,7 +202,6 @@ final class InitiateLoader {
             PrettyLogger.info("WARNING")
             PrettyLogger.info("WARNING")
         } else {
-            dotEnv = dotEnv.replacingOccurrences(of: "// NOTE: THESE KEYS ARE NOT TO BE USED ON PRODUCTION, THEY ARE HERE TO SIMPLY BE ABLE TO START A DEV ENV WITH JWT", with: "")
             dotEnv = dotEnv.replacingOccurrences(of: "::SIGNING::", with: "")
             dotEnv = dotEnv.replacingOccurrences(of: "::PUBLIC::", with: "")
         }

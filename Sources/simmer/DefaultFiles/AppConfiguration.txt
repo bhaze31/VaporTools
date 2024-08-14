@@ -20,6 +20,7 @@ public func configure(_ app: Application) async throws {
 
     // Session + Token information
     ::sessions::
+    app.middleware.use(app.sessions.middleware)
 
     ::jwt::
 

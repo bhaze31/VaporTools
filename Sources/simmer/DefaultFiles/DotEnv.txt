@@ -1,4 +1,4 @@
-::PG::
+::DB::
 ::SIGNING::
 ::PUBLIC::
 ::REDIS::

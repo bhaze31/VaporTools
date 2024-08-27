@@ -17,7 +17,16 @@ func validateFields(fields: [String]) -> [Field] {
     return parsed
 }
 
-let validTypes = ["string", "int", "double", "bool", "dict", "date", "any", "reference"]
+let VALID_TYPES = [
+    "string",
+    "int", "integer",
+    "double", "float",
+    "bool",
+    "dict",
+    "date",
+    "any",
+    "reference"
+]
 
 struct Field {
     var name: String
@@ -88,12 +97,12 @@ struct Field {
                 // If passed value type is dictionary, fail until nested dictionaries are supported
                 // TODO: Nested dictionaries
                 if value == "dict" {
-                    print("[XX] Nested dictionaries are not currently supported, a custom codable type must be passed.")
+                    PrettyLogger.info("Nested dictionaries are not currently supported, a custom codable type must be passed.")
 
                     value = "any"
                 }
 
-                value = validTypes.contains(value) ? value.toModelCase() : (valueType ?? "Any")
+                value = VALID_TYPES.contains(value) ? value.toModelCase() : (valueType ?? "Any")
 
                 let dictType = "Dictionary<\(keyType?.toModelCase() ?? "Any"), \(value)>"
 
@@ -103,7 +112,7 @@ struct Field {
 
                 return dictType.appending(isOptional ? "?" : "")
             default:
-                print("[XX] Invalid type found, assigning any")
+                PrettyLogger.error("Invalid type found, assigning any")
                 return "Any"
 
         }

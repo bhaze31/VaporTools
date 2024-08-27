@@ -19,7 +19,7 @@ final class FileHandler {
             return
         }
 
-        print("Creating file at path: \(path)")
+        PrettyLogger.log("Creating file at path: \(path)")
 
         FileManager.default.createFile(
             atPath: path,
@@ -35,9 +35,13 @@ final class FileHandler {
             PrettyLogger.warn("File \(fileName) already exists")
 
             if displayIfConflicting {
-                print("\nWould-be contents of \(fileName)\n")
-                print(contents)
-                print("\n\n")
+                PrettyLogger.log("""
+                Conflict, \(fileName) already exists. This would have been the contents of the file:
+                
+                \(contents)
+                
+                
+                """)
             }
 
             return

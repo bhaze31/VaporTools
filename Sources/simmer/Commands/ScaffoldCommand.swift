@@ -11,7 +11,7 @@ import Foundation
 final class ScaffoldCommand: ParsableCommand {
     static let _commandName: String = "scaffold"
     
-    static let configuration = CommandConfiguration(abstract: "Generate a full suite of items for a model", usage: "How to use it", discussion: "How things work entirely")
+    static let configuration = CommandConfiguration(abstract: "Generate a full suite of items for a model, including migrations, views, and controllers", usage: "How to use it", discussion: "How things work entirely")
     
     @Argument(help: "The name of the model to generate")
     private var name: String

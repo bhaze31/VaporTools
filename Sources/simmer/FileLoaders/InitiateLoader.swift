@@ -39,9 +39,9 @@ enum DatabasePackage: String {
 struct InitialPackageData {
     var database: DatabasePackage
 
-    var redis = false
+    var redis: Bool
 
-    var jwt = false
+    var jwt: Bool
 
     var port: Int?
 }

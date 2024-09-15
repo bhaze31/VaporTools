@@ -34,6 +34,13 @@ final class ScaffoldCommand: ParsableCommand {
     func run() throws {
         let parsedFields = validateFields(fields: fields)
         
-        let migrationOptions = MigrationOptions(name: name, fields: fields, skipTimestamps: skipTimestamps, softDelete: softDelete)
+        let migrationOptions = MigrationOptions(
+            name: name,
+            fields: fields,
+            skipTimestamps: skipTimestamps,
+            softDelete: softDelete
+        )
+        
+        
     }
 }
